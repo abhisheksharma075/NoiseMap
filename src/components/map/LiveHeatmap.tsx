@@ -53,14 +53,14 @@ export const LiveHeatmap: React.FC<LiveHeatmapProps> = ({
       errorCount++;
       console.warn(`[NoiseMap Tile Layer] Error loading tile from ${config.name}:`, errorEvent);
 
-      if (errorCount >= maxErrorsBeforeFallback && config.provider !== 'carto_dark') {
-        const warning = `Provider "${config.name}" tiles failed to load (Invalid key or network rejection). Automatically falling back to CARTO Dark Matter.`;
+      if (errorCount >= maxErrorsBeforeFallback && config.provider !== 'osm_dark') {
+        const warning = `Provider "${config.name}" tiles failed to load (Invalid key or network rejection). Automatically falling back to OpenStreetMap Standard.`;
         setTileLoadError(warning);
         if (onTileError) onTileError(warning);
 
-        // Fall back automatically to CARTO Dark Matter
-        const fallbackConfig = MapConfigService.getTileLayerConfig('carto_dark');
-        MapConfigService.setMapProvider('carto_dark');
+        // Fall back automatically to OpenStreetMap Standard
+        const fallbackConfig = MapConfigService.getTileLayerConfig('osm_dark');
+        MapConfigService.setMapProvider('osm_dark');
         setActiveTileConfig(fallbackConfig);
         attachTileLayer(map, fallbackConfig);
       }
@@ -178,7 +178,7 @@ export const LiveHeatmap: React.FC<LiveHeatmapProps> = ({
   const handleManualFallback = () => {
     if (mapInstanceRef.current) {
       MapConfigService.resetToDefault();
-      const config = MapConfigService.getTileLayerConfig('carto_dark');
+      const config = MapConfigService.getTileLayerConfig('osm_dark');
       setActiveTileConfig(config);
       attachTileLayer(mapInstanceRef.current, config);
       setTileLoadError(null);
@@ -202,7 +202,7 @@ export const LiveHeatmap: React.FC<LiveHeatmapProps> = ({
             className="px-2 py-1 bg-slate-900 border border-white/20 rounded text-[10px] hover:text-white flex items-center gap-1 cursor-pointer flex-shrink-0"
           >
             <RotateCcw className="w-3 h-3 text-cyan-400" />
-            <span>USE CARTO</span>
+            <span>USE OSM</span>
           </button>
         </div>
       )}

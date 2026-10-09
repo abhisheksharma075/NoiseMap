@@ -1,11 +1,11 @@
 // Map Tile Provider Configuration & Key Management
 // Providers:
-// 1. CARTO Dark Matter (Default) - Zero-key required, high availability, dark theme
-// 2. Stadia Alidade Smooth Dark - Works on localhost, requires key on remote production domains
-// 3. MapTiler Dataviz Dark - Requires a valid personal MapTiler API key
-// 4. OpenStreetMap Standard - Standard OpenStreetMap raster tiles with dark styling filter
+// 1. OpenStreetMap Standard (Recommended Default) - Zero-key required, high availability, inverted dark styling filter
+// 2. CARTO Dark Matter - Zero-key required, high availability, dark theme
+// 3. Stadia Alidade Smooth Dark - Works on localhost, requires key on remote production domains
+// 4. MapTiler Dataviz Dark - Requires a personal MapTiler API key
 
-export type MapTileProvider = 'carto_dark' | 'stadia_dark' | 'maptiler_dark' | 'osm_dark';
+export type MapTileProvider = 'osm_dark' | 'carto_dark' | 'stadia_dark' | 'maptiler_dark';
 
 export interface TileLayerConfig {
   provider: MapTileProvider;
@@ -20,7 +20,7 @@ export interface TileLayerConfig {
 }
 
 export class MapConfigService {
-  private static readonly DEFAULT_PROVIDER: MapTileProvider = 'carto_dark';
+  private static readonly DEFAULT_PROVIDER: MapTileProvider = 'osm_dark';
   private static readonly PROVIDER_STORAGE_KEY = 'noisemap_custom_map_provider';
   private static readonly KEY_STORAGE_PREFIX = 'noisemap_map_key_';
 
@@ -115,10 +115,10 @@ export class MapConfigService {
       case 'maptiler_dark': {
         const validation = this.validateProvider('maptiler_dark');
         if (!validation.isValid) {
-          // Fall back gracefully to CARTO Dark Matter so user never sees a broken screen
-          console.warn(`[NoiseMap MapConfig] MapTiler key missing or invalid. Falling back to CARTO Dark Matter.`);
+          // Fall back gracefully to OpenStreetMap Standard so user never sees a broken screen
+          console.warn(`[NoiseMap MapConfig] MapTiler key missing or invalid. Falling back to OpenStreetMap Standard.`);
           return {
-            ...this.getTileLayerConfig('carto_dark'),
+            ...this.getTileLayerConfig('osm_dark'),
             requiresKey: true,
             hasKey: false,
           };
@@ -154,7 +154,22 @@ export class MapConfigService {
         };
       }
 
-      case 'osm_dark': {
+      case 'carto_dark': {
+        return {
+          provider: 'carto_dark',
+          name: 'CARTO Dark Matter',
+          url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a>',
+          maxZoom: 19,
+          subdomains: 'abcd',
+          requiresKey: false,
+          hasKey: true,
+        };
+      }
+
+      case 'osm_dark':
+      default: {
         return {
           provider: 'osm_dark',
           name: 'OpenStreetMap (Inverted Dark Filter)',
@@ -168,26 +183,11 @@ export class MapConfigService {
           className: 'osm-dark-tiles',
         };
       }
-
-      case 'carto_dark':
-      default: {
-        return {
-          provider: 'carto_dark',
-          name: 'CARTO Dark Matter',
-          url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a>',
-          maxZoom: 19,
-          subdomains: 'abcd',
-          requiresKey: false,
-          hasKey: true,
-        };
-      }
     }
   }
 
   /**
-   * Resets provider and keys back to clean default (CARTO Dark Matter)
+   * Resets provider and keys back to clean default (OpenStreetMap Standard)
    */
   public static resetToDefault(): void {
     localStorage.removeItem(this.PROVIDER_STORAGE_KEY);

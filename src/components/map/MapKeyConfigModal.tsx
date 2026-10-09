@@ -56,7 +56,7 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
 
   const handleResetToDefault = () => {
     MapConfigService.resetToDefault();
-    setSelectedProvider('carto_dark');
+    setSelectedProvider('osm_dark');
     setApiKey('');
     setErrorMessage(null);
     setSavedSuccess(true);
@@ -99,6 +99,24 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button
                 type="button"
+                onClick={() => handleProviderSelect('osm_dark')}
+                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                  selectedProvider === 'osm_dark'
+                    ? 'bg-cyan-950/70 border-cyan-400 text-cyan-200 shadow-glow-cyan/20'
+                    : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
+                }`}
+              >
+                <div className="font-bold flex items-center justify-between">
+                  <span>OpenStreetMap Standard</span>
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300">
+                    RECOMMENDED
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-400 mt-0.5">Zero API Key · Inverted Dark CSS Filter</div>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => handleProviderSelect('carto_dark')}
                 className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
                   selectedProvider === 'carto_dark'
@@ -108,9 +126,6 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
               >
                 <div className="font-bold flex items-center justify-between">
                   <span>CARTO Dark Matter</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300">
-                    RECOMMENDED
-                  </span>
                 </div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Zero API Key Needed · High Availability</div>
               </button>
@@ -144,19 +159,6 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
                   </span>
                 </div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Requires Personal Key from MapTiler</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleProviderSelect('osm_dark')}
-                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
-                  selectedProvider === 'osm_dark'
-                    ? 'bg-cyan-950/70 border-cyan-400 text-cyan-200 shadow-glow-cyan/20'
-                    : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
-                }`}
-              >
-                <div className="font-bold">OpenStreetMap Standard</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Inverted Dark CSS Filter · Open Source</div>
               </button>
             </div>
           </div>
@@ -215,8 +217,14 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
               </div>
             )}
 
-            {selectedProvider === 'carto_dark' && (
+            {selectedProvider === 'osm_dark' && (
               <p className="text-[11px] text-emerald-400 font-mono">
+                ✓ OpenStreetMap Standard works immediately without configuring an API key.
+              </p>
+            )}
+
+            {selectedProvider === 'carto_dark' && (
+              <p className="text-[11px] text-slate-400 font-mono">
                 ✓ CARTO Dark Matter works immediately without configuring an API key.
               </p>
             )}
@@ -246,7 +254,7 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
               icon={<RotateCcw className="w-3.5 h-3.5 text-slate-400" />}
               onClick={handleResetToDefault}
             >
-              RESET TO CARTO DEFAULT
+              RESET TO OSM DEFAULT
             </TactileButton>
 
             <div className="flex-1 flex gap-2">
