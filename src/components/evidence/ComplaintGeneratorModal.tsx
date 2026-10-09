@@ -62,13 +62,13 @@ Please register this complaint and initiate acoustic verification as mandated by
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-xl animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain">
+      <div className="w-full max-w-xl my-auto max-h-[92vh] max-h-[92dvh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
         <VectorCard
           label="CPCB STATUTORY DOSSIER GENERATOR"
           tag="READY TO EXPORT"
           variant="crimson"
-          className="space-y-5"
+          className="flex flex-col max-h-[92vh] max-h-[92dvh] overflow-y-auto p-4 sm:p-5 space-y-5"
         >
           <button
             onClick={onClose}

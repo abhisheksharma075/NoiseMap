@@ -36,6 +36,7 @@ export const MeasureView: React.FC<MeasureViewProps> = ({
 
   const [showTagger, setShowTagger] = useState<boolean>(false);
   const [submissionSuccess, setSubmissionSuccess] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // When 10s sampling finishes automatically, display source tagger
   React.useEffect(() => {
@@ -44,26 +45,34 @@ export const MeasureView: React.FC<MeasureViewProps> = ({
     }
   }, [isComplete, avgDb, submissionSuccess]);
 
-  const handleConfirmSubmission = (source: NoiseSourceType, zone: NoiseZoneType) => {
-    const reading: NoiseReading = {
-      id: crypto.randomUUID(),
-      session_id: locationService.getOrCreateSessionId(),
-      lat: location?.lat || 26.144,
-      lng: location?.lng || 91.736,
-      grid_id: location?.grid_id || '26.144_91.736',
-      db_avg: avgDb,
-      db_peak: peakDb,
-      source_type: source,
-      zone_type: zone,
-      created_at: new Date().toISOString(),
-    };
+  const handleConfirmSubmission = async (source: NoiseSourceType, zone: NoiseZoneType) => {
+    setIsSubmitting(true);
+    try {
+      const reading: NoiseReading = {
+        id: crypto.randomUUID(),
+        session_id: locationService.getOrCreateSessionId(),
+        lat: location?.lat || 26.144,
+        lng: location?.lng || 91.736,
+        grid_id: location?.grid_id || '26.144_91.736',
+        db_avg: avgDb,
+        db_peak: peakDb,
+        source_type: source,
+        zone_type: zone,
+        created_at: new Date().toISOString(),
+      };
 
-    if (onReadingSubmitted) {
-      onReadingSubmitted(reading);
+      if (onReadingSubmitted) {
+        await onReadingSubmitted(reading);
+      }
+
+      setShowTagger(false);
+      setSubmissionSuccess(true);
+    } catch (err) {
+      console.error('[MeasureView] Error submitting reading:', err);
+      throw err;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setShowTagger(false);
-    setSubmissionSuccess(true);
   };
 
   const handleResetForNewSample = () => {
@@ -202,6 +211,7 @@ export const MeasureView: React.FC<MeasureViewProps> = ({
             setShowTagger(false);
             reset();
           }}
+          isSubmitting={isSubmitting}
         />
       )}
     </div>

@@ -58,13 +58,13 @@ export const DemoSimulatorModal: React.FC<DemoSimulatorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain">
+      <div className="w-full max-w-lg my-auto max-h-[92vh] max-h-[92dvh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
         <VectorCard
           label="FIELD TESTER DEMO SIMULATOR [HACKATHON HUD]"
           tag="LIVE INJECTION CONTROLLER"
           variant="cyan"
-          className="space-y-4"
+          className="flex flex-col max-h-[92vh] max-h-[92dvh] overflow-y-auto p-4 sm:p-5 space-y-4"
         >
           <button
             onClick={onClose}

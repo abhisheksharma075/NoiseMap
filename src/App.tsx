@@ -12,6 +12,7 @@ import { InstallPromptBanner } from './components/layout/InstallPromptBanner';
 import { NoiseReading, NoiseIncident, UserPin, UserStreak } from './types';
 import { IncidentEngine } from './services/incidentEngine';
 import { NotificationService } from './services/notificationService';
+import { NoiseDataService } from './services/noiseDataService';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('measure');
@@ -143,7 +144,10 @@ export const App: React.FC = () => {
     }
   }, [pins, incidents]);
 
-  const handleReadingSubmitted = (reading: NoiseReading) => {
+  const handleReadingSubmitted = async (reading: NoiseReading) => {
+    // Sync to Supabase cloud if configured, otherwise falls back gracefully to local autonomous store
+    await NoiseDataService.submitReading(reading);
+
     setReadings((prev) => {
       const updated = [reading, ...prev];
       const updatedIncidents = IncidentEngine.clusterReadings(updated, incidents);
@@ -160,7 +164,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-vector-grid text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen min-h-[100dvh] bg-vector-grid text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black antialiased">
       {/* Top Precision HUD Telemetry Header */}
       <Header
         currentGrid={readings[0]?.grid_id || "GEO_GRID: LOCATING..."}
@@ -172,7 +176,7 @@ export const App: React.FC = () => {
       <InstallPromptBanner />
 
       {/* Main Dynamic Viewport */}
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 pb-28 flex flex-col items-center justify-center">
+      <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 pb-28 sm:pb-24 flex flex-col items-center justify-start">
         {activeTab === 'measure' && (
           <MeasureView
             onReadingSubmitted={handleReadingSubmitted}
