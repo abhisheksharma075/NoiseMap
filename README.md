@@ -185,8 +185,8 @@ NoiseMap/
 
 ## 🏆 Hackathon Team Wave Builders
 
-- **Aman Tyagi**
 - **Abhishek Sharma**
+- **Aman Tyagi**
 - **Abhishek Bharadwaj**
 
 *NoiseMap: From Noise to Action — For Quieter, Healthier, Smarter Cities.*
