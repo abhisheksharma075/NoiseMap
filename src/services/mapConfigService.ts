@@ -1,11 +1,10 @@
 // Map Tile Provider Configuration & Key Management
 // Providers:
-// 1. OpenStreetMap Standard (Recommended Default) - Zero-key required, high availability, inverted dark styling filter
-// 2. CARTO Dark Matter - Zero-key required, high availability, dark theme
-// 3. Stadia Alidade Smooth Dark - Works on localhost, requires key on remote production domains
-// 4. MapTiler Dataviz Dark - Requires a personal MapTiler API key
+// 1. Stadia Alidade Smooth Dark (Recommended Default) - High-resolution dark vector-derived raster tiles
+// 2. OpenStreetMap Standard - Standard OpenStreetMap raster tiles with dark styling filter
+// 3. CARTO Dark Matter - Zero-key required, high availability, dark theme
 
-export type MapTileProvider = 'osm_dark' | 'carto_dark' | 'stadia_dark' | 'maptiler_dark';
+export type MapTileProvider = 'stadia_dark' | 'osm_dark' | 'carto_dark';
 
 export interface TileLayerConfig {
   provider: MapTileProvider;
@@ -20,7 +19,7 @@ export interface TileLayerConfig {
 }
 
 export class MapConfigService {
-  private static readonly DEFAULT_PROVIDER: MapTileProvider = 'osm_dark';
+  private static readonly DEFAULT_PROVIDER: MapTileProvider = 'stadia_dark';
   private static readonly PROVIDER_STORAGE_KEY = 'noisemap_custom_map_provider';
   private static readonly KEY_STORAGE_PREFIX = 'noisemap_map_key_';
 
@@ -32,9 +31,6 @@ export class MapConfigService {
     const localKey = localStorage.getItem(`${this.KEY_STORAGE_PREFIX}${provider}`)?.trim();
     if (localKey) return localKey;
 
-    if (provider === 'maptiler_dark') {
-      return (import.meta.env.VITE_MAPTILER_API_KEY || import.meta.env.VITE_MAP_API_KEY || '').trim();
-    }
     if (provider === 'stadia_dark') {
       return (import.meta.env.VITE_STADIA_API_KEY || import.meta.env.VITE_MAP_API_KEY || '').trim();
     }
@@ -55,16 +51,16 @@ export class MapConfigService {
 
   /**
    * Gets the active map provider.
-   * Defaults to 'carto_dark' for reliability.
+   * Defaults to 'stadia_dark' for reliability.
    */
   public static getMapProvider(): MapTileProvider {
     const saved = localStorage.getItem(this.PROVIDER_STORAGE_KEY);
-    if (saved && ['carto_dark', 'stadia_dark', 'maptiler_dark', 'osm_dark'].includes(saved)) {
+    if (saved && ['stadia_dark', 'osm_dark', 'carto_dark'].includes(saved)) {
       return saved as MapTileProvider;
     }
 
     const envProvider = import.meta.env.VITE_MAP_PROVIDER;
-    if (envProvider && ['carto_dark', 'stadia_dark', 'maptiler_dark', 'osm_dark'].includes(envProvider)) {
+    if (envProvider && ['stadia_dark', 'osm_dark', 'carto_dark'].includes(envProvider)) {
       return envProvider as MapTileProvider;
     }
 
@@ -82,62 +78,20 @@ export class MapConfigService {
    * Validates if a provider is ready to be loaded.
    * Returns { isValid: boolean, error?: string }
    */
-  public static validateProvider(provider: MapTileProvider): { isValid: boolean; error?: string } {
-    if (provider === 'maptiler_dark') {
-      const key = this.getApiKeyForProvider('maptiler_dark');
-      if (!key) {
-        return {
-          isValid: false,
-          error: 'MapTiler requires a personal API key. Get a free key at cloud.maptiler.com or switch to CARTO Dark Matter.',
-        };
-      }
-      if (key === 'get_your_free_key' || key.toLowerCase().includes('placeholder') || key.length < 8) {
-        return {
-          isValid: false,
-          error: 'The entered MapTiler API key appears to be a placeholder. Please enter a valid key from cloud.maptiler.com.',
-        };
-      }
-    }
-
+  public static validateProvider(_provider: MapTileProvider): { isValid: boolean; error?: string } {
     return { isValid: true };
   }
 
   /**
    * Builds the tile layer configuration.
-   * If a provider lacks its required key, automatically falls back to 'carto_dark'.
    */
   public static getTileLayerConfig(provider: MapTileProvider = this.getMapProvider()): TileLayerConfig {
     const targetProvider = provider;
-    const maptilerKey = this.getApiKeyForProvider('maptiler_dark');
     const stadiaKey = this.getApiKeyForProvider('stadia_dark');
 
     switch (targetProvider) {
-      case 'maptiler_dark': {
-        const validation = this.validateProvider('maptiler_dark');
-        if (!validation.isValid) {
-          // Fall back gracefully to OpenStreetMap Standard so user never sees a broken screen
-          console.warn(`[NoiseMap MapConfig] MapTiler key missing or invalid. Falling back to OpenStreetMap Standard.`);
-          return {
-            ...this.getTileLayerConfig('osm_dark'),
-            requiresKey: true,
-            hasKey: false,
-          };
-        }
-
-        return {
-          provider: 'maptiler_dark',
-          name: 'MapTiler Dataviz Dark',
-          url: `https://api.maptiler.com/maps/dataviz-dark/{z}/{x}/{y}.png?key=${encodeURIComponent(maptilerKey)}`,
-          attribution:
-            '&copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
-          maxZoom: 19,
-          requiresKey: true,
-          hasKey: true,
-        };
-      }
-
       case 'stadia_dark': {
-        // Stadia maps allows localhost origin for development without an API key, but requires one for remote domains
+        // Stadia maps allows localhost origin for development without an API key, but supports API key for production
         const url = stadiaKey
           ? `https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${encodeURIComponent(stadiaKey)}`
           : `https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png`;
@@ -149,7 +103,7 @@ export class MapConfigService {
           attribution:
             '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
           maxZoom: 20,
-          requiresKey: false, // Optional on localhost
+          requiresKey: false, // Works directly on localhost without requiring key
           hasKey: !!stadiaKey,
         };
       }
@@ -187,11 +141,10 @@ export class MapConfigService {
   }
 
   /**
-   * Resets provider and keys back to clean default (OpenStreetMap Standard)
+   * Resets provider and keys back to clean default (Stadia Alidade Dark)
    */
   public static resetToDefault(): void {
     localStorage.removeItem(this.PROVIDER_STORAGE_KEY);
-    localStorage.removeItem(`${this.KEY_STORAGE_PREFIX}maptiler_dark`);
     localStorage.removeItem(`${this.KEY_STORAGE_PREFIX}stadia_dark`);
     localStorage.removeItem('noisemap_custom_map_api_key');
     localStorage.removeItem('noisemap_custom_map_provider');

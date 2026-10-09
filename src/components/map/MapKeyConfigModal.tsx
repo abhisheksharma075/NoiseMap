@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { VectorCard } from '../common/VectorCard';
 import { TactileButton } from '../common/TactileButton';
 import { MapConfigService, MapTileProvider } from '../../services/mapConfigService';
-import { Map, Key, CheckCircle, RefreshCw, X, AlertTriangle, ExternalLink, RotateCcw } from 'lucide-react';
+import { Map, Key, CheckCircle, RefreshCw, X, AlertTriangle, RotateCcw } from 'lucide-react';
 
 interface MapKeyConfigModalProps {
   isOpen: boolean;
@@ -31,17 +31,6 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
   const handleSave = () => {
     setErrorMessage(null);
 
-    // If MapTiler is selected, validate key presence
-    if (selectedProvider === 'maptiler_dark') {
-      const trimmed = apiKey.trim();
-      if (!trimmed || trimmed === 'get_your_free_key' || trimmed.toLowerCase().includes('placeholder')) {
-        setErrorMessage(
-          'MapTiler requires a valid personal API key. Sign up for free at cloud.maptiler.com to get your key, or select CARTO Dark Matter.'
-        );
-        return;
-      }
-    }
-
     // Save provider and isolated key
     MapConfigService.setMapProvider(selectedProvider);
     MapConfigService.setApiKeyForProvider(selectedProvider, apiKey);
@@ -56,7 +45,7 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
 
   const handleResetToDefault = () => {
     MapConfigService.resetToDefault();
-    setSelectedProvider('osm_dark');
+    setSelectedProvider('stadia_dark');
     setApiKey('');
     setErrorMessage(null);
     setSavedSuccess(true);
@@ -96,7 +85,25 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
           {/* Provider Select Grid */}
           <div className="space-y-1.5">
             <label className="text-slate-300 font-semibold block">01. SELECT MAP BASEMAP PROVIDER:</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleProviderSelect('stadia_dark')}
+                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                  selectedProvider === 'stadia_dark'
+                    ? 'bg-cyan-950/70 border-cyan-400 text-cyan-200 shadow-glow-cyan/20'
+                    : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
+                }`}
+              >
+                <div className="font-bold flex items-center justify-between">
+                  <span>Stadia Alidade Dark</span>
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300">
+                    RECOMMENDED
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-400 mt-0.5">High-Res Dark Vector Tiles · Smooth Basemap</div>
+              </button>
+
               <button
                 type="button"
                 onClick={() => handleProviderSelect('osm_dark')}
@@ -106,12 +113,7 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
                     : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
                 }`}
               >
-                <div className="font-bold flex items-center justify-between">
-                  <span>OpenStreetMap Standard</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300">
-                    RECOMMENDED
-                  </span>
-                </div>
+                <div className="font-bold">OpenStreetMap Standard</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Zero API Key · Inverted Dark CSS Filter</div>
               </button>
 
@@ -124,41 +126,8 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
                     : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
                 }`}
               >
-                <div className="font-bold flex items-center justify-between">
-                  <span>CARTO Dark Matter</span>
-                </div>
+                <div className="font-bold">CARTO Dark Matter</div>
                 <div className="text-[10px] text-slate-400 mt-0.5">Zero API Key Needed · High Availability</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleProviderSelect('stadia_dark')}
-                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
-                  selectedProvider === 'stadia_dark'
-                    ? 'bg-cyan-950/70 border-cyan-400 text-cyan-200 shadow-glow-cyan/20'
-                    : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
-                }`}
-              >
-                <div className="font-bold">Stadia Alidade Dark</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Free on Localhost · Key for Production</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleProviderSelect('maptiler_dark')}
-                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
-                  selectedProvider === 'maptiler_dark'
-                    ? 'bg-amber-950/60 border-amber-400 text-amber-200 shadow-glow-amber/20'
-                    : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
-                }`}
-              >
-                <div className="font-bold flex items-center justify-between">
-                  <span>MapTiler Dataviz Dark</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-950 border border-amber-500/40 text-amber-300">
-                    KEY REQ.
-                  </span>
-                </div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Requires Personal Key from MapTiler</div>
               </button>
             </div>
           </div>
@@ -170,10 +139,8 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
                 <Key className="w-3.5 h-3.5 text-cyan-400" />
                 <span>
                   02.{' '}
-                  {selectedProvider === 'maptiler_dark'
-                    ? 'ENTER MAPTILER API KEY (REQUIRED):'
-                    : selectedProvider === 'stadia_dark'
-                    ? 'ENTER STADIA API KEY (OPTIONAL ON LOCALHOST):'
+                  {selectedProvider === 'stadia_dark'
+                    ? 'STADIA API KEY (OPTIONAL / PRODUCTION DOMAIN):'
                     : 'API KEY (NOT REQUIRED FOR THIS PROVIDER):'}
                 </span>
               </span>
@@ -189,32 +156,18 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
                 setErrorMessage(null);
               }}
               placeholder={
-                selectedProvider === 'maptiler_dark'
-                  ? 'Paste your MapTiler key from cloud.maptiler.com'
-                  : selectedProvider === 'stadia_dark'
-                  ? 'Paste Stadia key or leave blank on localhost'
-                  : 'No key needed for this provider'
+                selectedProvider === 'stadia_dark'
+                  ? 'Paste Stadia key or leave empty (works immediately on localhost)'
+                  : 'No API key needed for this provider'
               }
               className="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-white font-mono focus:outline-none focus:border-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed"
             />
 
-            {/* Provider specific helper note */}
-            {selectedProvider === 'maptiler_dark' && (
-              <div className="p-2 bg-amber-950/40 border border-amber-500/30 rounded text-[11px] text-amber-200 flex items-start gap-1.5">
-                <ExternalLink className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
-                <span>
-                  To use MapTiler Dataviz Dark, obtain a free personal key at{' '}
-                  <a
-                    href="https://cloud.maptiler.com/account/keys/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline text-amber-300 font-semibold hover:text-white"
-                  >
-                    cloud.maptiler.com/account/keys/
-                  </a>
-                  . If you do not have one, select <strong>CARTO Dark Matter</strong>.
-                </span>
-              </div>
+            {/* Provider specific helper notes */}
+            {selectedProvider === 'stadia_dark' && (
+              <p className="text-[11px] text-emerald-400 font-mono">
+                ✓ Stadia Alidade Dark works seamlessly as recommended default. Optional API key can be supplied for custom production domains.
+              </p>
             )}
 
             {selectedProvider === 'osm_dark' && (
@@ -254,7 +207,7 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
               icon={<RotateCcw className="w-3.5 h-3.5 text-slate-400" />}
               onClick={handleResetToDefault}
             >
-              RESET TO OSM DEFAULT
+              RESET TO STADIA DEFAULT
             </TactileButton>
 
             <div className="flex-1 flex gap-2">

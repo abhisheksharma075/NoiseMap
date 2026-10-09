@@ -178,7 +178,7 @@ export const LiveHeatmap: React.FC<LiveHeatmapProps> = ({
   const handleManualFallback = () => {
     if (mapInstanceRef.current) {
       MapConfigService.resetToDefault();
-      const config = MapConfigService.getTileLayerConfig('osm_dark');
+      const config = MapConfigService.getTileLayerConfig('stadia_dark');
       setActiveTileConfig(config);
       attachTileLayer(mapInstanceRef.current, config);
       setTileLoadError(null);
@@ -202,7 +202,7 @@ export const LiveHeatmap: React.FC<LiveHeatmapProps> = ({
             className="px-2 py-1 bg-slate-900 border border-white/20 rounded text-[10px] hover:text-white flex items-center gap-1 cursor-pointer flex-shrink-0"
           >
             <RotateCcw className="w-3 h-3 text-cyan-400" />
-            <span>USE OSM</span>
+            <span>USE STADIA</span>
           </button>
         </div>
       )}
