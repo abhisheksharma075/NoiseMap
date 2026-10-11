@@ -3,6 +3,7 @@ import { NoiseIncident, NoiseReading } from '../../types';
 import { VectorCard } from '../common/VectorCard';
 import { TactileButton } from '../common/TactileButton';
 import { ComplaintPdfService } from '../../services/complaintPdfService';
+import { soundFeedback } from '../../services/soundFeedbackService';
 import { FileText, Download, CheckCircle, ShieldAlert, Award, AlertCircle } from 'lucide-react';
 
 interface EvidenceViewProps {
@@ -280,6 +281,33 @@ export const EvidenceView: React.FC<EvidenceViewProps> = ({ incidents, readings 
                   <span className="text-graphite-900 dark:text-night-text capitalize">{readings[0].source_type}</span>
                 </div>
               </div>
+
+              {/* Instant PDF Download for this Sample */}
+              <TactileButton
+                variant="forest"
+                size="md"
+                className="w-full font-mono py-2.5 shadow-field"
+                disabled={isGenerating}
+                icon={isGenerating ? <FileText className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4 text-paper-50" />}
+                onClick={async () => {
+                  try {
+                    setIsGenerating(true);
+                    soundFeedback.playTap();
+                    const pdfBytes = await ComplaintPdfService.generateReadingComplaintPdf(readings[0]);
+                    ComplaintPdfService.downloadPdf(pdfBytes, `CPCB_Sample_Dossier_${readings[0].grid_id}.pdf`);
+                    soundFeedback.playSuccess();
+                    setDownloadSuccess(true);
+                    setTimeout(() => setDownloadSuccess(false), 4000);
+                  } catch (err) {
+                    console.error("PDF generation failed:", err);
+                    alert("Error downloading sample PDF dossier.");
+                  } finally {
+                    setIsGenerating(false);
+                  }
+                }}
+              >
+                {isGenerating ? 'COMPILING VECTOR DOSSIER...' : 'DOWNLOAD SAMPLE REPORT (PDF)'}
+              </TactileButton>
             </VectorCard>
           ) : (
             <div className="p-12 text-center font-mono text-stone-500 dark:text-night-muted">

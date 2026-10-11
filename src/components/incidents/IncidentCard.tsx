@@ -95,7 +95,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
           icon={<FileText className="w-4 h-4 text-paper-50" />}
           onClick={() => onGenerateComplaint && onGenerateComplaint(incident)}
         >
-          GENERATE CPCB COMPLAINT PDF
+          VIEW & DOWNLOAD DOSSIER
         </TactileButton>
 
         {onViewOnMap && (

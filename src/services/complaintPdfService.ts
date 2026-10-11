@@ -3,9 +3,38 @@
 // Cites Noise Pollution (Regulation and Control) Rules, 2000 under Environment (Protection) Act, 1986.
 
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { NoiseIncident } from '../types';
+import { NoiseIncident, NoiseReading } from '../types';
 
 export class ComplaintPdfService {
+  /**
+   * Generates a tamper-evident CPCB compliant legal PDF evidence package for individual citizen sample readings
+   */
+  public static async generateReadingComplaintPdf(
+    reading: NoiseReading,
+    zoneType: string = 'Residential Zone',
+    daytimeLimit: number = 55.0
+  ): Promise<Uint8Array> {
+    const syntheticIncident: NoiseIncident = {
+      id: reading.id,
+      grid_id: reading.grid_id,
+      center_lat: reading.lat,
+      center_lng: reading.lng,
+      location_name: `Sector Grid ${reading.grid_id}`,
+      started_at: reading.created_at,
+      last_seen_at: reading.created_at,
+      duration_min: 10 / 60,
+      avg_db: reading.db_avg,
+      peak_db: reading.db_peak,
+      reading_count: 1,
+      unique_users: 1,
+      dominant_source: reading.source_type,
+      evidence_score: Math.min(85, Math.round(reading.db_avg > 55 ? 65 : 45)),
+      status: 'active',
+      created_at: reading.created_at,
+    };
+    return this.generateComplaintPdf(syntheticIncident, zoneType, daytimeLimit);
+  }
+
   /**
    * Generates a tamper-evident CPCB compliant legal PDF evidence package
    */
