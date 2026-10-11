@@ -16,12 +16,13 @@ class SoundFeedbackService {
   constructor() {
     try {
       const savedSound = localStorage.getItem('noisemap_tap_sounds_enabled');
-      this.soundEnabled = savedSound === 'true';
+      // Default to true (active music tap effect) unless user has explicitly toggled off
+      this.soundEnabled = savedSound === null ? true : savedSound === 'true';
 
       const savedVoice = localStorage.getItem('noisemap_voice_feedback_enabled');
       this.voiceEnabled = savedVoice === 'true';
     } catch {
-      this.soundEnabled = false;
+      this.soundEnabled = true;
       this.voiceEnabled = false;
     }
   }
@@ -75,7 +76,7 @@ class SoundFeedbackService {
   }
 
   /**
-   * Subtle soft click (very short, low amplitude 800Hz damped ping)
+   * Musical tactile tap (soft marimba/acoustic harmonic ping with subtle warm overtone)
    */
   public playTap(): void {
     if (!this.soundEnabled || this.isRecordingActive) return;
@@ -83,29 +84,40 @@ class SoundFeedbackService {
       this.initContext();
       if (!this.audioCtx) return;
 
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
-
       const now = this.audioCtx.currentTime;
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, now);
-      osc.frequency.exponentialRampToValueAtTime(400, now + 0.03);
 
-      gain.gain.setValueAtTime(0.04, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+      // Fundamental tone (784 Hz - G5 acoustic bell)
+      const osc1 = this.audioCtx.createOscillator();
+      const gain1 = this.audioCtx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(783.99, now);
+      osc1.frequency.exponentialRampToValueAtTime(523.25, now + 0.045);
+      gain1.gain.setValueAtTime(0.045, now);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+      osc1.connect(gain1);
+      gain1.connect(this.audioCtx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.05);
 
-      osc.connect(gain);
-      gain.connect(this.audioCtx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.035);
+      // Sweet harmonic overtone (1174.66 Hz - D6)
+      const osc2 = this.audioCtx.createOscillator();
+      const gain2 = this.audioCtx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1174.66, now);
+      osc2.frequency.exponentialRampToValueAtTime(987.77, now + 0.035);
+      gain2.gain.setValueAtTime(0.02, now);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+      osc2.connect(gain2);
+      gain2.connect(this.audioCtx.destination);
+      osc2.start(now);
+      osc2.stop(now + 0.04);
     } catch {
       // Gracefully continue without sound
     }
   }
 
   /**
-   * Selection confirmation tick (two soft harmonic frequencies)
+   * Selection confirmation tick (musical ascending major second)
    */
   public playSelection(): void {
     if (!this.soundEnabled || this.isRecordingActive) return;
@@ -113,15 +125,14 @@ class SoundFeedbackService {
       this.initContext();
       if (!this.audioCtx) return;
 
+      const now = this.audioCtx.currentTime;
       const osc = this.audioCtx.createOscillator();
       const gain = this.audioCtx.createGain();
 
-      const now = this.audioCtx.currentTime;
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(600, now);
-      osc.frequency.exponentialRampToValueAtTime(900, now + 0.04);
-
-      gain.gain.setValueAtTime(0.05, now);
+      osc.frequency.setValueAtTime(659.25, now); // E5
+      osc.frequency.exponentialRampToValueAtTime(880.0, now + 0.04); // A5
+      gain.gain.setValueAtTime(0.04, now);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
 
       osc.connect(gain);

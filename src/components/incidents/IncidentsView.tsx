@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { NoiseIncident, NoiseReading } from '../../types';
 import { IncidentCard } from './IncidentCard';
 import { VectorCard } from '../common/VectorCard';
-import { AlertTriangle, Flame, CheckCircle, ShieldCheck, Radio } from 'lucide-react';
+import { TactileButton } from '../common/TactileButton';
+import { ComplaintPdfService } from '../../services/complaintPdfService';
+import { soundFeedback } from '../../services/soundFeedbackService';
+import { AlertTriangle, Flame, CheckCircle, ShieldCheck, Radio, Download, FileText, Loader2 } from 'lucide-react';
 
 interface IncidentsViewProps {
   incidents: NoiseIncident[];
@@ -18,9 +21,32 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
   onViewOnMap,
 }) => {
   const [filterTab, setFilterTab] = useState<'active' | 'hotspots' | 'resolved'>('active');
+  const [downloadingRecentId, setDownloadingRecentId] = useState<string | null>(null);
 
   const activeIncidents = incidents.filter((i) => i.status === 'active');
   const pendingConsensusReadings = readings.filter((r) => r.db_avg >= 68.0);
+  const mostRecentIncident = activeIncidents[0] || incidents[0];
+
+  const handleInstantDownloadPdf = async (incident: NoiseIncident) => {
+    try {
+      setDownloadingRecentId(incident.id);
+      soundFeedback.playTap();
+      const pdfBytes = await ComplaintPdfService.generateComplaintPdf(
+        incident,
+        'Residential Zone',
+        55.0
+      );
+      const refCode = `CPCB-NM-2026-${incident.id.slice(-6).toUpperCase()}`;
+      ComplaintPdfService.downloadPdf(pdfBytes, `CPCB_Noise_Complaint_${refCode}.pdf`);
+      soundFeedback.playSuccess();
+      soundFeedback.speakStatus('Statutory grievance PDF dossier downloaded');
+    } catch (err) {
+      console.error('Failed to generate PDF:', err);
+      alert('Error generating PDF dossier. Please try again.');
+    } finally {
+      setDownloadingRecentId(null);
+    }
+  };
 
   return (
     <div className="w-full max-w-4xl space-y-6">
@@ -90,6 +116,49 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
           </button>
         </div>
       </div>
+
+      {/* QUICK DOWNLOAD BANNER: Most Recent Verified Incident CPCB PDF */}
+      {mostRecentIncident && (
+        <div className="p-4 rounded-2xl bg-paper-soft dark:bg-night-surface border-2 border-terracotta/40 dark:border-terracotta/50 shadow-field font-mono flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-terracotta-subtle dark:bg-terracotta/20 border border-terracotta/40 text-terracotta flex items-center justify-center flex-shrink-0">
+              <FileText className="w-5 h-5 text-terracotta" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-xs sm:text-sm text-graphite dark:text-night-text font-sans">
+                  Recent Incident Report: {mostRecentIncident.location_name}
+                </span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-terracotta text-white font-bold">
+                  {mostRecentIncident.avg_db.toFixed(1)} dB
+                </span>
+              </div>
+              <p className="text-[11px] text-graphite-secondary dark:text-night-secondary mt-0.5">
+                Sector {mostRecentIncident.grid_id} · Corroborated by {mostRecentIncident.unique_users} citizen nodes ({mostRecentIncident.evidence_score.toFixed(0)}% confidence)
+              </p>
+            </div>
+          </div>
+
+          <TactileButton
+            variant="terracotta"
+            size="sm"
+            disabled={downloadingRecentId === mostRecentIncident.id}
+            icon={
+              downloadingRecentId === mostRecentIncident.id ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4 text-white" />
+              )
+            }
+            onClick={() => handleInstantDownloadPdf(mostRecentIncident)}
+            className="w-full sm:w-auto font-sans font-bold flex-shrink-0 shadow-field"
+          >
+            {downloadingRecentId === mostRecentIncident.id
+              ? 'Generating PDF...'
+              : 'Download Recent Incident PDF'}
+          </TactileButton>
+        </div>
+      )}
 
       {/* Incident List */}
       <div className="space-y-4">

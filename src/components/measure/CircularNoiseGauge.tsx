@@ -136,9 +136,17 @@ export const CircularNoiseGauge: React.FC<CircularNoiseGaugeProps> = ({
           {/* Integrated Readout Below Avatar */}
           <div className="mt-2 text-center pointer-events-none">
             {isSampling ? (
-              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-forest-subtle dark:bg-forest/30 border border-forest/30 text-forest dark:text-lime-signal text-[11px] font-bold animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-lime-signal animate-ping" />
-                <span>SAMPLING: {countdown}s</span>
+              <div className="flex flex-col items-center">
+                <div className="flex items-baseline justify-center">
+                  <span className="text-3xl sm:text-4xl font-black tracking-tight text-lime-signal font-mono animate-pulse">
+                    {instantDb > 0 ? instantDb.toFixed(1) : '--.-'}
+                  </span>
+                  <span className="text-xs font-semibold text-lime-signal/80 ml-1">dB(A)</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#141E17] border border-lime-signal/40 text-lime-signal text-[10px] font-bold mt-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-lime-signal animate-ping" />
+                  <span>INTEGRATING Leq · {countdown}s</span>
+                </div>
               </div>
             ) : decibels > 0 ? (
               <div className="flex flex-col items-center leading-none">

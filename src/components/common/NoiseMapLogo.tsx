@@ -8,9 +8,9 @@ interface NoiseMapLogoProps {
 }
 
 /**
- * NoiseMap Vector Brand Identity:
- * Concentric acoustic resonance arcs, precision crosshair, and bio-acoustic core.
- * Warm Paper / Deep Forest / Signal Lime palette.
+ * NoiseMap High-Classic Vector Brand Identity:
+ * Combines topographic geodetic reticles, precision resonance arcs,
+ * acoustic crests, and central bio-acoustic micro-transducer core.
  */
 export const NoiseMapLogo: React.FC<NoiseMapLogoProps> = ({
   className = '',
@@ -28,9 +28,9 @@ export const NoiseMapLogo: React.FC<NoiseMapLogoProps> = ({
 
   return (
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
-      {/* Precision Acoustic Vector Mark */}
+      {/* High-Classic Vector Instrument Mark */}
       <div
-        className={`relative flex items-center justify-center rounded-xl bg-forest dark:bg-[#1E2B22] border border-forest-border dark:border-forest/40 shadow-sm overflow-hidden flex-shrink-0 ${
+        className={`relative flex items-center justify-center rounded-xl bg-[#1E2F23] dark:bg-[#141E17] border border-[#2D4634] dark:border-forest/50 shadow-sm overflow-hidden flex-shrink-0 ${
           iconClassName || currentSize.icon
         }`}
       >
@@ -41,61 +41,72 @@ export const NoiseMapLogo: React.FC<NoiseMapLogoProps> = ({
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
         >
-          {/* Subtle Outer Boundary Ring */}
+          {/* Subtle Outer Geodetic Boundary Ring */}
           <circle
             cx="50"
             cy="50"
             r="44"
-            stroke="#DCD9CE"
-            strokeWidth="1.5"
-            strokeDasharray="3 3"
-            strokeOpacity="0.45"
+            stroke="#DCD7C9"
+            strokeWidth="1.2"
+            strokeDasharray="2 3"
+            strokeOpacity="0.4"
           />
 
-          {/* Secondary Resonance Ring */}
+          {/* Secondary Resonance Ring (Olive) */}
           <circle
             cx="50"
             cy="50"
-            r="32"
-            stroke="#798263"
+            r="33"
+            stroke="#798E69"
             strokeWidth="2"
-            strokeOpacity="0.65"
+            strokeOpacity="0.75"
           />
 
-          {/* Signal Lime Primary Acoustic Wave */}
+          {/* Primary Acoustic Wave Arc (Signal Lime Highlight) */}
           <circle
             cx="50"
             cy="50"
-            r="20"
+            r="21"
             stroke="#D5E66B"
-            strokeWidth="3"
+            strokeWidth="3.2"
+            strokeLinecap="round"
             strokeDasharray="90 35"
           />
 
-          {/* Sector Radar Sweep Beam */}
+          {/* Acoustic Wave Crests in Upper-Right Sector */}
           <path
-            d="M50 50 L78 22 A 38 38 0 0 0 50 12 Z"
-            fill="#D5E66B"
-            fillOpacity="0.28"
+            d="M 50 36 A 14 14 0 0 1 64 50"
+            stroke="#E2F075"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeOpacity="0.9"
+          />
+          <path
+            d="M 50 28 A 22 22 0 0 1 72 50"
+            stroke="#CDE350"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeOpacity="0.7"
           />
 
-          {/* Precision Alignment Crosshairs */}
-          <line x1="50" y1="6" x2="50" y2="94" stroke="#F4F1E8" strokeWidth="1.2" strokeOpacity="0.4" />
-          <line x1="6" y1="50" x2="94" y2="50" stroke="#F4F1E8" strokeWidth="1.2" strokeOpacity="0.4" />
+          {/* Precision Alignment Crosshair */}
+          <line x1="50" y1="5" x2="50" y2="95" stroke="#FAF8F2" strokeWidth="1" strokeOpacity="0.4" />
+          <line x1="5" y1="50" x2="95" y2="50" stroke="#FAF8F2" strokeWidth="1" strokeOpacity="0.4" />
 
           {/* Core Acoustic Micro-Transducer Node */}
-          <circle cx="50" cy="50" r="5.5" fill="#D5E66B" stroke="#26382D" strokeWidth="2" />
+          <circle cx="50" cy="50" r="5" fill="#141E17" stroke="#DCD7C9" strokeWidth="1" />
+          <circle cx="50" cy="50" r="3.2" fill="#D5E66B" />
         </svg>
       </div>
 
-      {/* Editorial Wordmark */}
+      {/* High-Classic Editorial Wordmark */}
       {showWordmark && (
         <div className="flex flex-col leading-tight">
           <div className="flex items-center gap-1.5">
             <span
               className={`font-black tracking-tight font-sans text-graphite dark:text-night-text ${currentSize.text}`}
             >
-              NOISE<span className="text-forest dark:text-lime-signal">MAP</span>
+              NOISE<span className="text-[#354C3C] dark:text-lime-signal">MAP</span>
             </span>
             <span
               className={`font-mono rounded-md bg-paper-100 dark:bg-night-800 border border-paper-border dark:border-night-border text-graphite-secondary dark:text-night-secondary font-semibold uppercase tracking-wider ${currentSize.badge}`}
