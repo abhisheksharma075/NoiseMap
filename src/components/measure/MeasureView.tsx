@@ -7,6 +7,7 @@ import { SourceTaggerModal } from './SourceTaggerModal';
 import { FieldGuideAvatar } from '../common/FieldGuideAvatar';
 import { useAudioCapture } from '../../hooks/useAudioCapture';
 import { NoiseSourceType, NoiseZoneType, NoiseReading } from '../../types';
+import { soundFeedback } from '../../services/soundFeedbackService';
 import { Mic, Square, Shield, Info, CheckCircle2, Map } from 'lucide-react';
 import { locationService } from '../../services/locationService';
 
@@ -83,6 +84,8 @@ export const MeasureView: React.FC<MeasureViewProps> = ({
 
       setShowTagger(false);
       setSubmissionSuccess(true);
+      soundFeedback.playSuccess();
+      soundFeedback.speakStatus('Sample successfully submitted to sensor grid');
     } catch (err) {
       console.error('[MeasureView] Error submitting reading:', err);
       throw err;
@@ -119,13 +122,22 @@ export const MeasureView: React.FC<MeasureViewProps> = ({
           </p>
         </div>
 
-        {/* Circular SVG Vector Gauge */}
+        {/* Circular SVG Vector Gauge with Centered Acoustic Avatar */}
         <div className="flex justify-center py-2">
           <CircularNoiseGauge
             decibels={isSampling ? instantDb : avgDb > 0 ? avgDb : 0}
+            instantDb={instantDb}
             peakDb={peakDb}
             isSampling={isSampling}
             countdown={countdown}
+            onTapMeasurement={
+              !isSampling
+                ? () => {
+                    setSilentSampleError(null);
+                    startSampling();
+                  }
+                : undefined
+            }
           />
         </div>
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Home, Mic, Map, AlertTriangle, FileText, UserCheck } from 'lucide-react';
+import { soundFeedback } from '../../services/soundFeedbackService';
 
 export type TabType = 'home' | 'measure' | 'map' | 'incidents' | 'evidence' | 'profile';
 
@@ -14,6 +15,10 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   onChangeTab,
   hasActiveIncidents = true,
 }) => {
+  const handleSelectTab = (tab: TabType) => {
+    soundFeedback.playSelection();
+    onChangeTab(tab);
+  };
   const tabs = [
     { id: 'home' as TabType, label: 'OVERVIEW', icon: Home },
     { id: 'measure' as TabType, label: 'MEASURE', icon: Mic, isPrimary: true },
@@ -45,7 +50,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => onChangeTab(tab.id)}
+                onClick={() => handleSelectTab(tab.id)}
                 aria-label="Start Acoustic Measurement"
                 aria-current={isActive ? 'page' : undefined}
                 className={`relative -top-2 flex flex-col items-center justify-center min-w-[52px] min-h-[52px] sm:min-w-[56px] sm:min-h-[56px] rounded-2xl transition-all duration-150 cursor-pointer select-none shadow-md ${
@@ -66,7 +71,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             <button
               key={tab.id}
               type="button"
-              onClick={() => onChangeTab(tab.id)}
+              onClick={() => handleSelectTab(tab.id)}
               aria-label={tab.label}
               aria-current={isActive ? 'page' : undefined}
               className={`relative flex flex-col items-center justify-center min-h-[48px] px-1.5 sm:px-2.5 rounded-xl transition-all duration-150 select-none cursor-pointer flex-1 ${

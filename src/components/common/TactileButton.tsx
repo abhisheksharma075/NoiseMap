@@ -1,4 +1,5 @@
 import React from 'react';
+import { soundFeedback } from '../../services/soundFeedbackService';
 
 export type ButtonVariant = 
   | 'forest' 
@@ -27,8 +28,16 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
   active = false,
   className = '',
   disabled,
+  onClick,
   ...props
 }) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (disabled) return;
+    soundFeedback.playTap();
+    if (onClick) {
+      onClick(e);
+    }
+  };
   // 44px minimum touch targets on mobile for touch ergonomics
   const sizeStyles = {
     sm: 'min-h-[36px] px-3 py-1.5 text-xs gap-1.5',
@@ -69,6 +78,7 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
   return (
     <button
       disabled={disabled}
+      onClick={handleClick}
       className={`inline-flex items-center justify-center font-sans rounded-xl transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest ${sizeStyles[size]} ${getVariantStyles(variant)} ${className}`}
       {...props}
     >

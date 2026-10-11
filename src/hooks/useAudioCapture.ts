@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { audioDspEngine, AudioMetrics } from '../services/audioDspService';
 import { locationService, QuantizedLocation } from '../services/locationService';
+import { soundFeedback } from '../services/soundFeedbackService';
 
 export interface UseAudioCaptureReturn {
   isSampling: boolean;
@@ -33,6 +34,9 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
   const isSamplingRef = useRef<boolean>(false);
 
   const stopSampling = useCallback(() => {
+    // Immediately inform soundFeedback that mic recording has finished
+    soundFeedback.setRecordingActive(false);
+
     if (countdownIntervalRef.current) {
       clearInterval(countdownIntervalRef.current);
       countdownIntervalRef.current = null;
@@ -67,6 +71,9 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
 
   const startSampling = useCallback(async () => {
     try {
+      // CRITICAL: Suppress all tap sounds and voice feedback before mic activation
+      soundFeedback.setRecordingActive(true);
+
       setError(null);
       setPermissionDenied(false);
       setIsComplete(false);
@@ -121,6 +128,7 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       }, 1000);
 
     } catch (err: unknown) {
+      soundFeedback.setRecordingActive(false);
       isSamplingRef.current = false;
       const errObj = err as { name?: string; message?: string };
       if (errObj.name === 'NotAllowedError' || errObj.name === 'PermissionDeniedError') {
@@ -134,6 +142,7 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
   }, [stopSampling]);
 
   const reset = useCallback(() => {
+    soundFeedback.setRecordingActive(false);
     if (countdownIntervalRef.current) {
       clearInterval(countdownIntervalRef.current);
       countdownIntervalRef.current = null;
