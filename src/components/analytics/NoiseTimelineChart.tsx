@@ -12,6 +12,8 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { VectorCard } from '../common/VectorCard';
+import { useTheme } from '../../context/ThemeContext';
+import { NoiseReading } from '../../types';
 
 ChartJS.register(
   CategoryScale,
@@ -26,9 +28,16 @@ ChartJS.register(
 
 interface NoiseTimelineChartProps {
   className?: string;
+  readings?: NoiseReading[];
 }
 
-export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({ className = '' }) => {
+export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({
+  className = '',
+  readings = [],
+}) => {
+  const { theme } = useTheme();
+  const isNight = theme === 'dark';
+
   const hours = [
     '00:00', '02:00', '04:00', '06:00', '08:00', '10:00',
     '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'
@@ -37,8 +46,30 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({ classNam
   // Normal expected ambient baseline (typical city street)
   const baselineData = [44, 42, 40, 48, 56, 62, 60, 63, 65, 68, 58, 49];
 
-  // Measured timeline showing evening spike violation
-  const todayMeasured = [45, 43, 42, 49, 58, 64, 62, 65, 78, 86, 82, 54];
+  // Dynamically bucket real readings into the 12 two-hour time slots
+  const todayMeasured = React.useMemo(() => {
+    if (!readings || readings.length === 0) {
+      return [45, 43, 42, 49, 58, 64, 62, 65, 78, 86, 82, 54];
+    }
+
+    const slotBuckets: number[][] = Array.from({ length: 12 }, () => []);
+
+    readings.forEach((r) => {
+      const date = new Date(r.created_at);
+      const hour = date.getHours();
+      const slotIndex = Math.min(Math.floor(hour / 2), 11);
+      slotBuckets[slotIndex].push(r.db_avg);
+    });
+
+    return slotBuckets.map((bucket, index) => {
+      if (bucket.length === 0) {
+        return baselineData[index];
+      }
+      const energySum = bucket.reduce((sum, db) => sum + Math.pow(10, db / 10), 0);
+      const avg = 10 * Math.log10(energySum / bucket.length);
+      return Math.round(avg * 10) / 10;
+    });
+  }, [readings]);
 
   // CPCB Residential Daytime threshold line
   const cpcbThreshold = Array(12).fill(55);
@@ -47,20 +78,20 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({ classNam
     labels: hours,
     datasets: [
       {
-        label: "Today's Measured Noise (dB)",
+        label: "Dynamic Grid Noise (dB)",
         data: todayMeasured,
-        borderColor: '#EF4444',
-        backgroundColor: 'rgba(239, 68, 68, 0.15)',
+        borderColor: '#C46E50',
+        backgroundColor: 'rgba(196, 110, 80, 0.15)',
         tension: 0.35,
         fill: true,
-        pointBackgroundColor: '#EF4444',
+        pointBackgroundColor: '#C46E50',
         pointRadius: 4,
         pointHoverRadius: 6,
       },
       {
         label: 'Historical Baseline (dB)',
         data: baselineData,
-        borderColor: '#00F2FE',
+        borderColor: isNight ? '#D5E66B' : '#354C3C',
         backgroundColor: 'transparent',
         borderDash: [4, 4],
         tension: 0.35,
@@ -69,7 +100,7 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({ classNam
       {
         label: 'CPCB Daytime Limit (55 dB)',
         data: cpcbThreshold,
-        borderColor: '#F59E0B',
+        borderColor: '#798263',
         backgroundColor: 'transparent',
         borderDash: [2, 2],
         pointRadius: 0,
@@ -84,48 +115,48 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({ classNam
       legend: {
         position: 'top' as const,
         labels: {
-          color: '#94A3B8',
+          color: isNight ? '#F4F1E8' : '#252922',
           font: { family: 'JetBrains Mono', size: 10 },
         },
       },
       tooltip: {
-        backgroundColor: '#0F172A',
-        borderColor: '#334155',
+        backgroundColor: isNight ? '#1C231E' : '#FBF9F2',
+        borderColor: isNight ? '#3C443D' : '#DCD9CE',
         borderWidth: 1,
-        titleColor: '#F8FAFC',
-        bodyColor: '#38BDF8',
+        titleColor: isNight ? '#F4F1E8' : '#252922',
+        bodyColor: isNight ? '#D5E66B' : '#354C3C',
         titleFont: { family: 'JetBrains Mono' },
         bodyFont: { family: 'JetBrains Mono' },
       },
     },
     scales: {
       x: {
-        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-        ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 10 } },
+        grid: { color: isNight ? 'rgba(255, 255, 255, 0.06)' : 'rgba(37, 41, 34, 0.06)' },
+        ticks: { color: isNight ? '#A1A598' : '#74766C', font: { family: 'JetBrains Mono', size: 10 } },
       },
       y: {
         min: 30,
         max: 100,
-        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-        ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 10 } },
+        grid: { color: isNight ? 'rgba(255, 255, 255, 0.06)' : 'rgba(37, 41, 34, 0.06)' },
+        ticks: { color: isNight ? '#A1A598' : '#74766C', font: { family: 'JetBrains Mono', size: 10 } },
       },
     },
   };
 
   return (
     <VectorCard
-      label="TEMPORAL NOISE ANALYSIS [24-HOUR DIURNAL CURVE]"
+      label="TEMPORAL NOISE ANALYSIS · 24-HOUR DIURNAL CURVE"
       tag="CHART.JS TELEMETRY"
-      variant="cyan"
-      className={`space-y-4 ${className}`}
+      variant="forest"
+      className={`space-y-4 shadow-md ${className}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono">
         <div>
-          <h4 className="text-sm font-bold text-white">Before vs. After Violation Timeline</h4>
-          <p className="text-xs text-slate-400">Proves continuous breach patterns over statutory daytime limits</p>
+          <h4 className="text-sm font-bold text-graphite-900 dark:text-night-text font-serif">Before vs. After Violation Timeline</h4>
+          <p className="text-xs text-stone-600 dark:text-night-muted">Proves continuous breach patterns over statutory daytime limits</p>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="px-2 py-0.5 rounded bg-rose-950/80 border border-rose-500/40 text-rose-300 font-bold">
+          <span className="px-2.5 py-1 rounded-full bg-terracotta-100 dark:bg-terracotta-950/60 border border-terracotta-300 dark:border-terracotta-700 text-terracotta-800 dark:text-terracotta-300 font-bold">
             MAX PEAK: 86 dB
           </span>
         </div>

@@ -102,6 +102,7 @@ export class IncidentEngine {
 
         const centerLat = gridReadings[0].lat;
         const centerLng = gridReadings[0].lng;
+        const readingIds = gridReadings.map((r) => r.id);
 
         const incidentRecord: NoiseIncident = {
           id: existingIndex >= 0 ? activeIncidents[existingIndex].id : 'inc_' + crypto.randomUUID().slice(0, 8),
@@ -120,6 +121,7 @@ export class IncidentEngine {
           evidence_score: breakdown.totalScore,
           status: 'active',
           created_at: new Date(minTime).toISOString(),
+          reading_ids: readingIds,
         };
 
         if (existingIndex >= 0) {
@@ -130,6 +132,9 @@ export class IncidentEngine {
       }
     });
 
-    return activeIncidents;
+    // Sort newest last_seen_at first
+    return activeIncidents.sort((a, b) => {
+      return new Date(b.last_seen_at).getTime() - new Date(a.last_seen_at).getTime();
+    });
   }
 }

@@ -42,6 +42,31 @@ export class LocationService {
     };
   }
 
+  private lastKnownLocation: QuantizedLocation | null = null;
+
+  public getLastKnownLocation(): QuantizedLocation | null {
+    if (this.lastKnownLocation) return this.lastKnownLocation;
+    try {
+      const saved = localStorage.getItem('noisemap_last_known_loc');
+      if (saved) {
+        this.lastKnownLocation = JSON.parse(saved);
+        return this.lastKnownLocation;
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  }
+
+  public setLastKnownLocation(loc: QuantizedLocation): void {
+    this.lastKnownLocation = loc;
+    try {
+      localStorage.setItem('noisemap_last_known_loc', JSON.stringify(loc));
+    } catch {
+      // ignore
+    }
+  }
+
   /**
    * Captures device location and immediately quantizes it into a ~100m grid cell.
    * Falls back gracefully if GPS is unavailable or blocked.
@@ -59,13 +84,16 @@ export class LocationService {
             pos.coords.longitude
           );
 
-          resolve({
+          const quantized: QuantizedLocation = {
             lat,
             lng,
             grid_id,
             accuracyMeters: Math.max(Math.round(pos.coords.accuracy), 100), // Min 100m privacy floor
             isApproximate: true,
-          });
+          };
+
+          this.setLastKnownLocation(quantized);
+          resolve(quantized);
         },
         (error) => {
           // If denied or timed out, resolve to a standard default coordinate

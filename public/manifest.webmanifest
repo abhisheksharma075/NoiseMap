@@ -1,11 +1,11 @@
 {
-  "name": "NoiseMap — Privacy-First Acoustic Intelligence",
+  "name": "NoiseMap — Civic Acoustic Intelligence",
   "short_name": "NoiseMap",
-  "description": "Zero-install crowdsourced noise pollution mapping, multi-contributor verification, and legal CPCB complaint generation PWA.",
+  "description": "Urban noise monitoring, community incident verification, and CPCB legal evidence dossier PWA.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0B0F17",
-  "theme_color": "#0B0F17",
+  "background_color": "#F4F1E8",
+  "theme_color": "#26382D",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -18,14 +18,14 @@
   "categories": ["utilities", "weather", "productivity"],
   "shortcuts": [
     {
-      "name": "Measure Noise",
+      "name": "Start Measuring",
       "short_name": "Measure",
       "description": "Start 10-second ambient audio sample",
       "url": "/?tab=measure",
       "icons": [{ "src": "/radar-icon.svg", "sizes": "192x192" }]
     },
     {
-      "name": "Live Acoustic Map",
+      "name": "Live Noise Map",
       "short_name": "Map",
       "description": "View real-time city noise heatmap",
       "url": "/?tab=map",

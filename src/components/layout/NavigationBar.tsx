@@ -1,7 +1,7 @@
 import React from 'react';
-import { Activity, Map, AlertTriangle, FileText, UserCheck } from 'lucide-react';
+import { Home, Mic, Map, AlertTriangle, FileText, UserCheck } from 'lucide-react';
 
-export type TabType = 'measure' | 'map' | 'incidents' | 'evidence' | 'profile';
+export type TabType = 'home' | 'measure' | 'map' | 'incidents' | 'evidence' | 'profile';
 
 interface NavigationBarProps {
   activeTab: TabType;
@@ -15,7 +15,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   hasActiveIncidents = true,
 }) => {
   const tabs = [
-    { id: 'measure' as TabType, label: 'MEASURE', icon: Activity },
+    { id: 'home' as TabType, label: 'OVERVIEW', icon: Home },
+    { id: 'measure' as TabType, label: 'MEASURE', icon: Mic, isPrimary: true },
     { id: 'map' as TabType, label: 'MAP', icon: Map },
     {
       id: 'incidents' as TabType,
@@ -23,37 +24,69 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       icon: AlertTriangle,
       badge: hasActiveIncidents,
     },
-    { id: 'evidence' as TabType, label: 'CPCB DOSSIER', icon: FileText },
+    { id: 'evidence' as TabType, label: 'DOSSIER', icon: FileText },
     { id: 'profile' as TabType, label: 'CIVIC ID', icon: UserCheck },
   ];
 
   return (
-    <nav className="fixed bottom-4 inset-x-0 mx-auto w-[94%] max-w-lg bg-[#111827]/95 backdrop-blur-xl border border-white/10 rounded-2xl px-2 py-1.5 shadow-2xl z-50">
-      <div className="flex items-center justify-around">
+    <nav
+      role="navigation"
+      aria-label="Application Navigation"
+      className="fixed bottom-0 inset-x-0 mx-auto w-full max-w-lg z-50 bg-paper-soft/95 dark:bg-night-surface/95 backdrop-blur-xl border-t border-paper-border dark:border-night-border pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-1 px-2 shadow-field-lg transition-colors duration-150"
+    >
+      <div className="flex items-center justify-around gap-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
 
+          if (tab.isPrimary) {
+            // Elevated Primary Action Button (Measure)
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onChangeTab(tab.id)}
+                aria-label="Start Acoustic Measurement"
+                aria-current={isActive ? 'page' : undefined}
+                className={`relative -top-2 flex flex-col items-center justify-center min-w-[52px] min-h-[52px] sm:min-w-[56px] sm:min-h-[56px] rounded-2xl transition-all duration-150 cursor-pointer select-none shadow-md ${
+                  isActive
+                    ? 'bg-forest text-lime-signal ring-2 ring-forest dark:ring-lime-signal scale-105'
+                    : 'bg-forest hover:bg-forest-deep text-[#FBF9F2] hover:scale-102'
+                }`}
+              >
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="text-[9px] font-mono font-bold tracking-tight mt-0.5 text-lime-signal">
+                  MEASURE
+                </span>
+              </button>
+            );
+          }
+
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => onChangeTab(tab.id)}
-              className={`relative flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all duration-200 select-none cursor-pointer ${
+              aria-label={tab.label}
+              aria-current={isActive ? 'page' : undefined}
+              className={`relative flex flex-col items-center justify-center min-h-[48px] px-1.5 sm:px-2.5 rounded-xl transition-all duration-150 select-none cursor-pointer flex-1 ${
                 isActive
-                  ? 'text-cyan-300 bg-cyan-950/60 shadow-[inset_0_0_12px_rgba(0,242,254,0.15)] border border-cyan-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
+                  ? 'text-forest dark:text-lime-signal font-bold'
+                  : 'text-graphite-secondary dark:text-night-secondary hover:text-graphite dark:hover:text-night-text'
               }`}
             >
               <div className="relative">
-                <Icon className={`w-5 h-5 ${isActive ? 'text-cyan-400 scale-105' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isActive ? 'scale-110' : ''}`} />
                 {tab.badge && (
                   <span className="absolute -top-1 -right-1.5 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-terracotta opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-terracotta"></span>
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-mono tracking-wider font-medium">
+              <span className={`text-[9px] sm:text-[10px] font-mono tracking-tight mt-1 transition-colors ${
+                isActive ? 'font-bold underline decoration-forest dark:decoration-lime-signal underline-offset-4' : 'font-medium'
+              }`}>
                 {tab.label}
               </span>
             </button>

@@ -2,7 +2,7 @@ import React from 'react';
 
 interface StatusBadgeProps {
   label: string;
-  variant?: 'cyan' | 'amber' | 'crimson' | 'emerald' | 'slate';
+  variant?: 'forest' | 'lime' | 'terracotta' | 'olive' | 'slate' | 'cyan' | 'amber' | 'crimson' | 'emerald';
   pulse?: boolean;
   icon?: React.ReactNode;
   className?: string;
@@ -10,30 +10,39 @@ interface StatusBadgeProps {
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({
   label,
-  variant = 'cyan',
+  variant = 'forest',
   pulse = false,
   icon,
   className = '',
 }) => {
   const badgeStyles = {
-    cyan: 'bg-cyan-950/70 border-cyan-500/40 text-cyan-300',
-    amber: 'bg-amber-950/70 border-amber-500/40 text-amber-300',
-    crimson: 'bg-rose-950/70 border-rose-500/40 text-rose-300',
-    emerald: 'bg-emerald-950/70 border-emerald-500/40 text-emerald-300',
-    slate: 'bg-slate-900/80 border-slate-700/50 text-slate-400',
+    forest: 'bg-forest-subtle dark:bg-forest/30 border-forest/30 text-forest dark:text-lime-signal font-semibold',
+    lime: 'bg-lime-subtle dark:bg-lime-signal/20 border-lime-dark/30 text-[#4E5B10] dark:text-lime-signal font-semibold',
+    terracotta: 'bg-terracotta-subtle dark:bg-terracotta/25 border-terracotta/30 text-terracotta dark:text-[#E2886A] font-semibold',
+    olive: 'bg-olive-subtle dark:bg-olive/25 border-olive/30 text-[#545B41] dark:text-[#CCD6AC] font-semibold',
+    slate: 'bg-paper dark:bg-night-surface border-paper-border dark:border-night-border text-graphite-secondary dark:text-night-secondary',
+    // Compatibility aliases:
+    cyan: 'bg-forest-subtle dark:bg-forest/30 border-forest/30 text-forest dark:text-lime-signal font-semibold',
+    amber: 'bg-lime-subtle dark:bg-lime-signal/20 border-lime-dark/30 text-[#4E5B10] dark:text-lime-signal font-semibold',
+    crimson: 'bg-terracotta-subtle dark:bg-terracotta/25 border-terracotta/30 text-terracotta dark:text-[#E2886A] font-semibold',
+    emerald: 'bg-forest-subtle dark:bg-forest/30 border-forest/30 text-forest dark:text-lime-signal font-semibold',
   };
 
   const dotStyles = {
-    cyan: 'bg-cyan-400',
-    amber: 'bg-amber-400',
-    crimson: 'bg-rose-400',
-    emerald: 'bg-emerald-400',
-    slate: 'bg-slate-500',
+    forest: 'bg-forest dark:bg-lime-signal',
+    lime: 'bg-[#8D9F1B] dark:bg-lime-signal',
+    terracotta: 'bg-terracotta',
+    olive: 'bg-olive',
+    slate: 'bg-stone',
+    cyan: 'bg-forest dark:bg-lime-signal',
+    amber: 'bg-[#8D9F1B] dark:bg-lime-signal',
+    crimson: 'bg-terracotta',
+    emerald: 'bg-forest dark:bg-lime-signal',
   };
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border font-mono text-[11px] font-medium tracking-wide uppercase ${badgeStyles[variant]} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-mono text-[11px] tracking-wide uppercase ${badgeStyles[variant]} ${className}`}
     >
       {pulse ? (
         <span className="relative flex h-2 w-2">

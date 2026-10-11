@@ -57,86 +57,92 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain">
+    <div className="fixed inset-0 bg-graphite-950/65 dark:bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain">
       <div className="w-full max-w-lg my-auto max-h-[92vh] max-h-[92dvh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
         <VectorCard
           label="GEOSPATIAL TILE & API KEY MANAGER"
           tag="TILE LAYER CONTROLLER"
-          variant="cyan"
-          className="flex flex-col max-h-[92vh] max-h-[92dvh] overflow-y-auto p-4 sm:p-5 space-y-4 font-mono text-xs"
+          variant="forest"
+          className="flex flex-col max-h-[92vh] max-h-[92dvh] overflow-y-auto p-4 sm:p-5 space-y-4 font-mono text-xs shadow-xl"
         >
           <button
             onClick={onClose}
-            className="absolute top-2.5 right-2.5 text-slate-400 hover:text-white p-1 rounded transition-colors"
+            className="absolute top-3 right-3 text-stone-500 hover:text-graphite-900 dark:hover:text-night-text p-1.5 rounded-md hover:bg-paper-200 dark:hover:bg-night-800 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center gap-2.5 text-white">
-            <div className="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center">
-              <Map className="w-4 h-4 text-cyan-400" />
+          <div className="flex items-center gap-2.5 text-graphite-900 dark:text-night-text">
+            <div className="w-9 h-9 rounded-lg bg-paper-100 dark:bg-night-900 border border-paper-border dark:border-night-border flex items-center justify-center flex-shrink-0">
+              <Map className="w-4 h-4 text-forest-700 dark:text-lime-400" />
             </div>
             <div>
-              <h3 className="text-sm font-bold">Map Provider & API Key Setup</h3>
-              <p className="text-[11px] text-slate-400">Configure high-resolution vector and raster dark tile layers</p>
+              <h3 className="text-sm font-bold text-graphite-900 dark:text-night-text">Map Provider & API Key Setup</h3>
+              <p className="text-[11px] text-stone-500 dark:text-night-muted">Configure high-resolution cartographic tile layers</p>
             </div>
           </div>
 
           {/* Provider Select Grid */}
           <div className="space-y-1.5">
-            <label className="text-slate-300 font-semibold block">01. SELECT MAP BASEMAP PROVIDER:</label>
+            <label className="text-graphite-800 dark:text-night-text font-semibold block">01. SELECT MAP BASEMAP PROVIDER:</label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => handleProviderSelect('stadia_dark')}
-                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                className={`p-2.5 min-h-[56px] rounded-lg border text-left transition-all cursor-pointer ${
                   selectedProvider === 'stadia_dark'
-                    ? 'bg-cyan-950/70 border-cyan-400 text-cyan-200 shadow-glow-cyan/20'
-                    : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
+                    ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 shadow-sm'
+                    : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400'
                 }`}
               >
                 <div className="font-bold flex items-center justify-between">
-                  <span>Stadia Alidade Dark</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300">
-                    RECOMMENDED
+                  <span>Stadia Alidade</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded border ${selectedProvider === 'stadia_dark' ? 'bg-forest-800 text-paper-50 dark:bg-lime-500 dark:text-forest-950 border-transparent' : 'bg-paper-200 dark:bg-night-900 border-paper-border text-forest-700 dark:text-lime-400'}`}>
+                    REC
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5">High-Res Dark Vector Tiles · Smooth Basemap</div>
+                <div className={`text-[10px] mt-0.5 ${selectedProvider === 'stadia_dark' ? 'text-paper-200 dark:text-forest-800' : 'text-stone-500 dark:text-night-muted'}`}>
+                  High-Res Dark Tiles
+                </div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleProviderSelect('osm_dark')}
-                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                className={`p-2.5 min-h-[56px] rounded-lg border text-left transition-all cursor-pointer ${
                   selectedProvider === 'osm_dark'
-                    ? 'bg-cyan-950/70 border-cyan-400 text-cyan-200 shadow-glow-cyan/20'
-                    : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
+                    ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 shadow-sm'
+                    : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400'
                 }`}
               >
-                <div className="font-bold">OpenStreetMap Standard</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Zero API Key · Inverted Dark CSS Filter</div>
+                <div className="font-bold">OSM Standard</div>
+                <div className={`text-[10px] mt-0.5 ${selectedProvider === 'osm_dark' ? 'text-paper-200 dark:text-forest-800' : 'text-stone-500 dark:text-night-muted'}`}>
+                  Zero Key · Open Data
+                </div>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleProviderSelect('carto_dark')}
-                className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
+                className={`p-2.5 min-h-[56px] rounded-lg border text-left transition-all cursor-pointer ${
                   selectedProvider === 'carto_dark'
-                    ? 'bg-cyan-950/70 border-cyan-400 text-cyan-200 shadow-glow-cyan/20'
-                    : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
+                    ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 shadow-sm'
+                    : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400'
                 }`}
               >
-                <div className="font-bold">CARTO Dark Matter</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Zero API Key Needed · High Availability</div>
+                <div className="font-bold">CARTO Dark</div>
+                <div className={`text-[10px] mt-0.5 ${selectedProvider === 'carto_dark' ? 'text-paper-200 dark:text-forest-800' : 'text-stone-500 dark:text-night-muted'}`}>
+                  Zero Key · High Availability
+                </div>
               </button>
             </div>
           </div>
 
           {/* Key Input Section */}
           <div className="space-y-1.5 pt-1">
-            <label className="text-slate-300 font-semibold flex items-center justify-between">
+            <label className="text-graphite-800 dark:text-night-text font-semibold flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <Key className="w-3.5 h-3.5 text-cyan-400" />
+                <Key className="w-3.5 h-3.5 text-forest-700 dark:text-lime-400" />
                 <span>
                   02.{' '}
                   {selectedProvider === 'stadia_dark'
@@ -144,7 +150,7 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
                     : 'API KEY (NOT REQUIRED FOR THIS PROVIDER):'}
                 </span>
               </span>
-              <span className="text-[10px] text-slate-500">Stored in localStorage</span>
+              <span className="text-[10px] text-stone-500 dark:text-night-muted">Stored locally</span>
             </label>
 
             <input
@@ -160,24 +166,24 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
                   ? 'Paste Stadia key or leave empty (works immediately on localhost)'
                   : 'No API key needed for this provider'
               }
-              className="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-white font-mono focus:outline-none focus:border-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full bg-paper-100 dark:bg-night-900 border border-paper-border dark:border-night-border rounded-lg px-3 py-2 text-graphite-900 dark:text-night-text font-mono focus:outline-none focus:border-forest-600 dark:focus:border-lime-400 disabled:opacity-40 disabled:cursor-not-allowed"
             />
 
             {/* Provider specific helper notes */}
             {selectedProvider === 'stadia_dark' && (
-              <p className="text-[11px] text-emerald-400 font-mono">
+              <p className="text-[11px] text-forest-700 dark:text-lime-400 font-mono">
                 ✓ Stadia Alidade Dark works seamlessly as recommended default. Optional API key can be supplied for custom production domains.
               </p>
             )}
 
             {selectedProvider === 'osm_dark' && (
-              <p className="text-[11px] text-emerald-400 font-mono">
+              <p className="text-[11px] text-forest-700 dark:text-lime-400 font-mono">
                 ✓ OpenStreetMap Standard works immediately without configuring an API key.
               </p>
             )}
 
             {selectedProvider === 'carto_dark' && (
-              <p className="text-[11px] text-slate-400 font-mono">
+              <p className="text-[11px] text-stone-600 dark:text-night-muted font-mono">
                 ✓ CARTO Dark Matter works immediately without configuring an API key.
               </p>
             )}
@@ -185,16 +191,16 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
 
           {/* Error Message */}
           {errorMessage && (
-            <div className="p-2.5 bg-rose-950/60 border border-rose-500/50 rounded text-rose-300 text-xs flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+            <div className="p-2.5 bg-terracotta-50 dark:bg-night-900 border border-terracotta-300 dark:border-terracotta-700 rounded-lg text-terracotta-800 dark:text-terracotta-200 text-xs flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-terracotta-600 dark:text-terracotta-400 flex-shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {/* Success Message */}
           {savedSuccess && (
-            <div className="p-2.5 bg-emerald-950/60 border border-emerald-500/40 rounded text-emerald-300 text-xs flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <div className="p-2.5 bg-forest-50 dark:bg-night-900 border border-forest-400 dark:border-forest-700 rounded-lg text-forest-800 dark:text-forest-200 text-xs flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-forest-600 dark:text-lime-400" />
               <span>Settings applied! Updating map tile layer...</span>
             </div>
           )}
@@ -204,10 +210,10 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
             <TactileButton
               variant="ghost"
               size="md"
-              icon={<RotateCcw className="w-3.5 h-3.5 text-slate-400" />}
+              icon={<RotateCcw className="w-3.5 h-3.5 text-stone-500" />}
               onClick={handleResetToDefault}
             >
-              RESET TO STADIA DEFAULT
+              RESET TO DEFAULT
             </TactileButton>
 
             <div className="flex-1 flex gap-2">
@@ -215,10 +221,10 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
                 CANCEL
               </TactileButton>
               <TactileButton
-                variant="cyan"
+                variant="forest"
                 size="md"
                 className="flex-1"
-                icon={<RefreshCw className="w-4 h-4 text-cyan-400" />}
+                icon={<RefreshCw className="w-4 h-4 text-lime-400" />}
                 onClick={handleSave}
               >
                 APPLY SETTINGS

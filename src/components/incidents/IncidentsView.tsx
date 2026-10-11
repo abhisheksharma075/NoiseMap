@@ -1,50 +1,53 @@
 import React, { useState } from 'react';
-import { NoiseIncident } from '../../types';
+import { NoiseIncident, NoiseReading } from '../../types';
 import { IncidentCard } from './IncidentCard';
 import { VectorCard } from '../common/VectorCard';
-import { AlertTriangle, Flame, CheckCircle, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, Flame, CheckCircle, ShieldCheck, Radio } from 'lucide-react';
 
 interface IncidentsViewProps {
   incidents: NoiseIncident[];
+  readings?: NoiseReading[];
   onGenerateComplaint?: (incident: NoiseIncident) => void;
   onViewOnMap?: (incident: NoiseIncident) => void;
 }
 
 export const IncidentsView: React.FC<IncidentsViewProps> = ({
   incidents,
+  readings = [],
   onGenerateComplaint,
   onViewOnMap,
 }) => {
   const [filterTab, setFilterTab] = useState<'active' | 'hotspots' | 'resolved'>('active');
 
   const activeIncidents = incidents.filter((i) => i.status === 'active');
+  const pendingConsensusReadings = readings.filter((r) => r.db_avg >= 68.0);
 
   return (
     <div className="w-full max-w-4xl space-y-6">
       {/* Top Header Strip */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-surface/90 border border-white/10 rounded-xl font-mono">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-paper-50/95 dark:bg-night-850/95 border border-paper-border dark:border-night-border rounded-xl font-mono shadow-sm">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-base font-bold text-white tracking-wider">
+            <span className="text-base font-bold text-graphite-900 dark:text-night-text tracking-wider">
               VERIFIED NOISE INCIDENTS
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-rose-950 border border-rose-500/40 text-rose-300 font-bold">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-terracotta-100 dark:bg-terracotta-950/60 border border-terracotta-300 dark:border-terracotta-700 text-terracotta-800 dark:text-terracotta-300 font-bold">
               {activeIncidents.length} ACTIVE
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-stone-600 dark:text-night-muted mt-1">
             Corroborated peer evidence engine · Eliminating single-user bias
           </p>
         </div>
 
         {/* Tab Selector */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-950 rounded-lg border border-white/10 text-xs">
+        <div className="flex items-center gap-1.5 p-1 bg-paper-100 dark:bg-night-900 rounded-lg border border-paper-border dark:border-night-border text-xs">
           <button
             onClick={() => setFilterTab('active')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors cursor-pointer ${
+            className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
               filterTab === 'active'
-                ? 'bg-rose-950/80 text-rose-300 border border-rose-500/40 font-bold'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 font-bold shadow-xs'
+                : 'text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text'
             }`}
           >
             <AlertTriangle className="w-3.5 h-3.5" />
@@ -52,10 +55,10 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
           </button>
           <button
             onClick={() => setFilterTab('hotspots')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors cursor-pointer ${
+            className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
               filterTab === 'hotspots'
-                ? 'bg-amber-950/80 text-amber-300 border border-amber-500/40 font-bold'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 font-bold shadow-xs'
+                : 'text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text'
             }`}
           >
             <Flame className="w-3.5 h-3.5" />
@@ -63,10 +66,10 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
           </button>
           <button
             onClick={() => setFilterTab('resolved')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors cursor-pointer ${
+            className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
               filterTab === 'resolved'
-                ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 font-bold'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 font-bold shadow-xs'
+                : 'text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text'
             }`}
           >
             <CheckCircle className="w-3.5 h-3.5" />
@@ -89,18 +92,43 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
         )}
 
         {filterTab === 'active' && activeIncidents.length === 0 && (
-          <VectorCard
-            label="INCIDENT SENSOR LOG"
-            tag="ZERO ACTIVE HAZARDS"
-            variant="emerald"
-            className="text-center py-12 space-y-3 font-mono"
-          >
-            <ShieldCheck className="w-12 h-12 text-emerald-400 mx-auto" />
-            <h3 className="text-lg font-bold text-white">Grid Operating Within CPCB Limits</h3>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
-              No continuous clusters exceeding statutory thresholds detected in your sector over the last 15 minutes.
-            </p>
-          </VectorCard>
+          <div className="space-y-4">
+            <VectorCard
+              label="INCIDENT SENSOR LOG"
+              tag="ZERO ACTIVE HAZARDS"
+              variant="forest"
+              className="text-center py-8 space-y-3 font-mono shadow-sm"
+            >
+              <ShieldCheck className="w-12 h-12 text-forest-700 dark:text-lime-400 mx-auto" />
+              <h3 className="text-lg font-bold text-graphite-900 dark:text-night-text">Grid Operating Within CPCB Limits</h3>
+              <p className="text-xs text-stone-600 dark:text-night-muted max-w-md mx-auto leading-relaxed">
+                No multi-contributor clusters (3+ devices exceeding 68 dB in a ~100m sector) active over the last 15 minutes.
+              </p>
+            </VectorCard>
+
+            {pendingConsensusReadings.length > 0 && (
+              <div className="p-3.5 bg-paper-50 dark:bg-night-850 border border-olive-500/40 rounded-xl font-mono text-xs space-y-2 shadow-sm">
+                <div className="flex items-center gap-2 text-olive-800 dark:text-olive-300 font-semibold">
+                  <Radio className="w-4 h-4 text-olive-600 dark:text-lime-400 animate-pulse" />
+                  <span>{pendingConsensusReadings.length} Noise Exceedance Sample(s) Saved · Awaiting Peer Corroboration</span>
+                </div>
+                <p className="text-stone-600 dark:text-night-muted text-[11px] leading-relaxed">
+                  Your submitted readings are safely stored in local memory and mapped on radar. Under CPCB statutory evidence rules, confirmed legal incidents require consensus from at least 3 distinct citizen nodes in the same grid sector.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  {pendingConsensusReadings.slice(0, 2).map((r) => (
+                    <div key={r.id} className="p-2.5 rounded-lg bg-paper-100 dark:bg-night-900 border border-paper-border dark:border-night-border flex justify-between items-center text-[11px]">
+                      <div>
+                        <span className="text-forest-800 dark:text-lime-300 font-bold">{r.db_avg.toFixed(1)} dB</span>
+                        <span className="text-stone-600 dark:text-night-muted ml-1.5 capitalize font-medium">({r.source_type})</span>
+                      </div>
+                      <span className="text-stone-500 dark:text-night-muted text-[10px]">Sector {r.grid_id}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {filterTab === 'hotspots' && (
@@ -121,9 +149,9 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
             label="HISTORICAL AUDIT LOG"
             tag="RESOLVED EVENTS"
             variant="default"
-            className="text-center py-10 space-y-2 font-mono text-xs text-slate-400"
+            className="text-center py-10 space-y-2 font-mono text-xs text-stone-600 dark:text-night-muted shadow-sm"
           >
-            <CheckCircle className="w-8 h-8 text-slate-500 mx-auto" />
+            <CheckCircle className="w-8 h-8 text-forest-700 dark:text-lime-400 mx-auto" />
             <p>Historical resolved events are archived and available for municipal reporting.</p>
           </VectorCard>
         )}

@@ -15,6 +15,7 @@ export class AudioDspEngine {
   private isRunning: boolean = false;
   private sampleReadings: number[] = [];
   private currentPeak: number = 0;
+  private lastMetrics: AudioMetrics = { instantDb: 0, avgDb: 0, peakDb: 0 };
 
   // Calibrated reference offset for typical smartphone microphone input
   // Translates normalized Web Audio float values to estimated ambient dB SPL
@@ -25,15 +26,23 @@ export class AudioDspEngine {
       throw new Error("Audio DSP engine is already active");
     }
 
-    // Request client microphone access
-    this.mediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: false,
-        noiseSuppression: false,
-        autoGainControl: false,
-      },
-      video: false,
-    });
+    // Request client microphone access with fallback for mobile browsers
+    try {
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+        video: false,
+      });
+    } catch (constraintErr) {
+      console.warn("Advanced audio constraints rejected; falling back to default audio stream", constraintErr);
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false,
+      });
+    }
 
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     this.audioCtx = new AudioContextClass();
@@ -52,13 +61,14 @@ export class AudioDspEngine {
     this.isRunning = true;
     this.sampleReadings = [];
     this.currentPeak = 0;
+    this.lastMetrics = { instantDb: 0, avgDb: 0, peakDb: 0 };
 
     return this.analyser;
   }
 
   public getMetrics(): AudioMetrics {
     if (!this.analyser || !this.isRunning) {
-      return { instantDb: 0, avgDb: 0, peakDb: 0 };
+      return this.lastMetrics;
     }
 
     const bufferLength = this.analyser.fftSize;
@@ -69,7 +79,9 @@ export class AudioDspEngine {
     let sumSquares = 0;
     for (let i = 0; i < bufferLength; i++) {
       const val = timeDomainData[i];
-      sumSquares += val * val;
+      if (!Number.isNaN(val) && Number.isFinite(val)) {
+        sumSquares += val * val;
+      }
     }
 
     const rms = Math.sqrt(sumSquares / bufferLength);
@@ -82,24 +94,53 @@ export class AudioDspEngine {
       instantDb = Math.min(Math.max(rawDb, 30.0), 120.0);
     }
 
-    // Accumulate metrics for averaging and peak hold
+    // Accumulate metrics for energy-equivalent averaging and peak hold
     this.sampleReadings.push(instantDb);
     if (instantDb > this.currentPeak) {
       this.currentPeak = instantDb;
     }
 
-    const sum = this.sampleReadings.reduce((acc, val) => acc + val, 0);
-    const avgDb = sum / this.sampleReadings.length;
+    // Equivalent Continuous Sound Level (Leq) logarithmic energy integration:
+    // Leq = 10 * log10( (1/N) * sum( 10^(Li / 10) ) )
+    const energySum = this.sampleReadings.reduce(
+      (acc, val) => acc + Math.pow(10, val / 10),
+      0
+    );
+    const meanEnergy = energySum / this.sampleReadings.length;
+    const leqDb = Math.min(Math.max(10 * Math.log10(meanEnergy), 30.0), 120.0);
 
-    return {
+    const calculated: AudioMetrics = {
       instantDb: Math.round(instantDb * 10) / 10,
-      avgDb: Math.round(avgDb * 10) / 10,
+      avgDb: Math.round(leqDb * 10) / 10,
       peakDb: Math.round(this.currentPeak * 10) / 10,
     };
+
+    this.lastMetrics = calculated;
+    return calculated;
   }
 
   public stop(): AudioMetrics {
-    const finalMetrics = this.getMetrics();
+    // Capture metrics while analyser is still connected
+    let finalMetrics = this.lastMetrics;
+    if (this.analyser && this.isRunning) {
+      finalMetrics = this.getMetrics();
+    }
+
+    // If no samples were accumulated during polling, ensure we do at least one calculation
+    if (finalMetrics.avgDb === 0 && this.sampleReadings.length > 0) {
+      const energySum = this.sampleReadings.reduce(
+        (acc, val) => acc + Math.pow(10, val / 10),
+        0
+      );
+      const meanEnergy = energySum / this.sampleReadings.length;
+      const leqDb = Math.min(Math.max(10 * Math.log10(meanEnergy), 30.0), 120.0);
+      finalMetrics = {
+        instantDb: Math.round(this.sampleReadings[this.sampleReadings.length - 1] * 10) / 10,
+        avgDb: Math.round(leqDb * 10) / 10,
+        peakDb: Math.round(this.currentPeak * 10) / 10,
+      };
+      this.lastMetrics = finalMetrics;
+    }
 
     // Immediately sever hardware stream and discard audio in RAM
     if (this.mediaStream) {
@@ -116,6 +157,16 @@ export class AudioDspEngine {
     this.isRunning = false;
 
     return finalMetrics;
+  }
+
+  public getFinalMetrics(): AudioMetrics {
+    return this.lastMetrics;
+  }
+
+  public reset(): void {
+    this.sampleReadings = [];
+    this.currentPeak = 0;
+    this.lastMetrics = { instantDb: 0, avgDb: 0, peakDb: 0 };
   }
 
   public isActive(): boolean {

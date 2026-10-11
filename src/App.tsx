@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/layout/Header';
 import { NavigationBar, TabType } from './components/layout/NavigationBar';
+import { LandingView } from './components/landing/LandingView';
 import { MeasureView } from './components/measure/MeasureView';
 import { MapView } from './components/map/MapView';
 import { IncidentsView } from './components/incidents/IncidentsView';
@@ -13,127 +14,58 @@ import { NoiseReading, NoiseIncident, UserPin, UserStreak } from './types';
 import { IncidentEngine } from './services/incidentEngine';
 import { NotificationService } from './services/notificationService';
 import { NoiseDataService } from './services/noiseDataService';
+import { locationService } from './services/locationService';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('measure');
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as TabType;
+      if (tabParam && ['home', 'measure', 'map', 'incidents', 'evidence', 'profile'].includes(tabParam)) {
+        return tabParam;
+      }
+    } catch (e) {
+      // ignore
+    }
+    return 'home';
+  });
   const [modalIncident, setModalIncident] = useState<NoiseIncident | null>(null);
   const [isSimulatorOpen, setIsSimulatorOpen] = useState<boolean>(false);
-  const [readings, setReadings] = useState<NoiseReading[]>([
-    {
-      id: 'demo-1',
-      session_id: 'anon_demo1',
-      lat: 26.144,
-      lng: 91.736,
-      grid_id: '26.144_91.736',
-      db_avg: 82.4,
-      db_peak: 94.1,
-      source_type: 'traffic',
-      zone_type: 'commercial',
-      created_at: new Date().toISOString(),
-    },
-    {
-      id: 'demo-2',
-      session_id: 'anon_demo2',
-      lat: 26.144,
-      lng: 91.736,
-      grid_id: '26.144_91.736',
-      db_avg: 84.2,
-      db_peak: 91.5,
-      source_type: 'traffic',
-      zone_type: 'commercial',
-      created_at: new Date(Date.now() - 3 * 60000).toISOString(),
-    },
-    {
-      id: 'demo-3',
-      session_id: 'anon_demo3',
-      lat: 26.144,
-      lng: 91.736,
-      grid_id: '26.144_91.736',
-      db_avg: 80.7,
-      db_peak: 88.0,
-      source_type: 'traffic',
-      zone_type: 'commercial',
-      created_at: new Date(Date.now() - 6 * 60000).toISOString(),
-    },
-    {
-      id: 'demo-4',
-      session_id: 'anon_demo4',
-      lat: 26.148,
-      lng: 91.741,
-      grid_id: '26.148_91.741',
-      db_avg: 74.2,
-      db_peak: 83.5,
-      source_type: 'construction',
-      zone_type: 'residential',
-      created_at: new Date().toISOString(),
-    },
-    {
-      id: 'demo-5',
-      session_id: 'anon_demo5',
-      lat: 26.141,
-      lng: 91.731,
-      grid_id: '26.141_91.731',
-      db_avg: 48.7,
-      db_peak: 54.0,
-      source_type: 'unknown',
-      zone_type: 'silence',
-      created_at: new Date().toISOString(),
-    },
-  ]);
+  
+  // Persistent readings store loaded synchronously on boot
+  const [readings, setReadings] = useState<NoiseReading[]>(() =>
+    NoiseDataService.getAllReadings()
+  );
 
   const [incidents, setIncidents] = useState<NoiseIncident[]>(() => {
-    // Initial clustering pass based on default readings
-    return IncidentEngine.clusterReadings([
-      {
-        id: 'demo-1',
-        session_id: 'anon_demo1',
-        lat: 26.144,
-        lng: 91.736,
-        grid_id: '26.144_91.736',
-        db_avg: 82.4,
-        db_peak: 94.1,
-        source_type: 'traffic',
-        zone_type: 'commercial',
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: 'demo-2',
-        session_id: 'anon_demo2',
-        lat: 26.144,
-        lng: 91.736,
-        grid_id: '26.144_91.736',
-        db_avg: 84.2,
-        db_peak: 91.5,
-        source_type: 'traffic',
-        zone_type: 'commercial',
-        created_at: new Date(Date.now() - 3 * 60000).toISOString(),
-      },
-      {
-        id: 'demo-3',
-        session_id: 'anon_demo3',
-        lat: 26.144,
-        lng: 91.736,
-        grid_id: '26.144_91.736',
-        db_avg: 80.7,
-        db_peak: 88.0,
-        source_type: 'traffic',
-        zone_type: 'commercial',
-        created_at: new Date(Date.now() - 6 * 60000).toISOString(),
-      },
-    ]);
+    const initialReadings = NoiseDataService.getAllReadings();
+    return IncidentEngine.clusterReadings(initialReadings);
   });
 
   const [pins, setPins] = useState<UserPin[]>(() =>
     NotificationService.getSavedPins()
   );
 
-  const [streak, setStreak] = useState<UserStreak>({
-    session_id: 'local_user',
-    total_readings: 14,
-    verified_readings: 11,
-    current_streak: 3,
-    badge_level: 'noise_watcher',
-    last_reading: new Date().toISOString(),
+  const [streak, setStreak] = useState<UserStreak>(() => {
+    const initialReadings = NoiseDataService.getAllReadings();
+    const currentSession = locationService.getOrCreateSessionId();
+    const userReadings = initialReadings.filter((r) => r.session_id === currentSession);
+    const count = userReadings.length;
+    const verified = userReadings.filter((r) => r.db_avg > 0).length;
+
+    let badge: UserStreak['badge_level'] = 'newcomer';
+    if (count >= 50) badge = 'noise_guardian';
+    else if (count >= 25) badge = 'community_sensor';
+    else if (count >= 10) badge = 'noise_watcher';
+
+    return {
+      session_id: currentSession,
+      total_readings: count,
+      verified_readings: verified,
+      current_streak: count > 0 ? 1 : 0,
+      badge_level: badge,
+      last_reading: userReadings[0]?.created_at || new Date().toISOString(),
+    };
   });
 
   // Automatically evaluate geofenced pin breaches whenever incidents update
@@ -149,34 +81,60 @@ export const App: React.FC = () => {
     await NoiseDataService.submitReading(reading);
 
     setReadings((prev) => {
-      const updated = [reading, ...prev];
+      const updated = NoiseDataService.sortReadingsNewestFirst([reading, ...prev]);
       const updatedIncidents = IncidentEngine.clusterReadings(updated, incidents);
       setIncidents(updatedIncidents);
       return updated;
     });
 
-    // Increment user streak count
-    setStreak((prev) => ({
-      ...prev,
-      total_readings: prev.total_readings + 1,
-      last_reading: new Date().toISOString(),
-    }));
+    // Dynamically increment user contribution records and streak
+    setStreak((prev) => {
+      const newTotal = prev.total_readings + 1;
+      const newVerified = prev.verified_readings + 1;
+      let badge = prev.badge_level;
+      if (newTotal >= 50) badge = 'noise_guardian';
+      else if (newTotal >= 25) badge = 'community_sensor';
+      else if (newTotal >= 10) badge = 'noise_watcher';
+
+      return {
+        ...prev,
+        total_readings: newTotal,
+        verified_readings: newVerified,
+        current_streak: Math.max(prev.current_streak, 1),
+        badge_level: badge,
+        last_reading: reading.created_at,
+      };
+    });
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-vector-grid text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black antialiased">
+    <div className="min-h-screen min-h-[100dvh] bg-paper dark:bg-night-bg bg-field-grid text-graphite dark:text-night-text flex flex-col font-sans selection:bg-lime-signal selection:text-graphite transition-colors duration-150 antialiased">
       {/* Top Precision HUD Telemetry Header */}
       <Header
         currentGrid={readings[0]?.grid_id || "GEO_GRID: LOCATING..."}
         activeIncidentsCount={incidents.filter((i) => i.status === 'active').length}
         onOpenDemoToolbar={() => setIsSimulatorOpen(true)}
+        onNavigateHome={() => setActiveTab('home')}
       />
 
       {/* PWA Install Promotion Banner */}
       <InstallPromptBanner />
 
       {/* Main Dynamic Viewport */}
-      <main className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 pb-28 sm:pb-24 flex flex-col items-center justify-start">
+      <main className={`flex-1 w-full mx-auto p-4 sm:p-6 pb-28 sm:pb-24 flex flex-col items-center justify-start ${
+        activeTab === 'home' ? 'max-w-6xl' : 'max-w-5xl'
+      }`}>
+        {activeTab === 'home' && (
+          <LandingView
+            readings={readings}
+            incidents={incidents}
+            onNavigateTab={(tab) => setActiveTab(tab)}
+            onGenerateComplaint={(inc) => {
+              setModalIncident(inc);
+            }}
+          />
+        )}
+
         {activeTab === 'measure' && (
           <MeasureView
             onReadingSubmitted={handleReadingSubmitted}
@@ -198,6 +156,7 @@ export const App: React.FC = () => {
         {activeTab === 'incidents' && (
           <IncidentsView
             incidents={incidents}
+            readings={readings}
             onGenerateComplaint={(inc) => {
               setModalIncident(inc);
             }}
@@ -209,7 +168,10 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'evidence' && (
-          <EvidenceView incidents={incidents} />
+          <EvidenceView
+            incidents={incidents}
+            readings={readings}
+          />
         )}
 
         {activeTab === 'profile' && (
@@ -217,6 +179,7 @@ export const App: React.FC = () => {
             pins={pins}
             onUpdatePins={setPins}
             streak={streak}
+            readings={readings}
           />
         )}
       </main>
@@ -235,15 +198,17 @@ export const App: React.FC = () => {
         onClose={() => setIsSimulatorOpen(false)}
         onInjectReadings={(simReadings) => {
           setReadings((prev) => {
-            const updated = [...simReadings, ...prev];
+            const updated = NoiseDataService.sortReadingsNewestFirst([...simReadings, ...prev]);
+            NoiseDataService.saveReadings(updated);
             const updatedIncidents = IncidentEngine.clusterReadings(updated, incidents);
             setIncidents(updatedIncidents);
             return updated;
           });
         }}
         onResetToBaseline={() => {
-          setReadings([]);
-          setIncidents([]);
+          const baseline = NoiseDataService.resetToBaseline();
+          setReadings(baseline);
+          setIncidents(IncidentEngine.clusterReadings(baseline));
         }}
         activeCount={readings.length}
       />

@@ -23,9 +23,35 @@ export const MapView: React.FC<MapViewProps> = ({
   const [showKeyModal, setShowKeyModal] = useState<boolean>(false);
   const [mapKey, setMapKey] = useState<number>(0);
 
-  // Filter readings based on active controls
+  // Filter readings based on active temporal and source controls
+  const now = Date.now();
   const filteredReadings = readings.filter((r) => {
-    if (sourceFilter !== 'all' && r.source_type !== sourceFilter) return false;
+    // 1. Source filter
+    if (sourceFilter !== 'all' && r.source_type !== sourceFilter) {
+      return false;
+    }
+
+    // 2. Time filter
+    if (timeFilter !== 'all') {
+      const readingTime = new Date(r.created_at).getTime();
+      const ageMs = now - readingTime;
+
+      switch (timeFilter) {
+        case 'live':
+          if (ageMs > 15 * 60 * 1000) return false; // 15 minutes
+          break;
+        case '1h':
+          if (ageMs > 60 * 60 * 1000) return false; // 1 hour
+          break;
+        case '24h':
+          if (ageMs > 24 * 60 * 60 * 1000) return false; // 24 hours
+          break;
+        case '7d':
+          if (ageMs > 7 * 24 * 60 * 60 * 1000) return false; // 7 days
+          break;
+      }
+    }
+
     return true;
   });
 
@@ -44,11 +70,11 @@ export const MapView: React.FC<MapViewProps> = ({
         </div>
         <button
           onClick={() => setShowKeyModal(true)}
-          className="p-3 bg-surface/90 border border-white/10 rounded-xl text-slate-400 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors flex items-center gap-1.5 font-mono text-xs cursor-pointer whitespace-nowrap"
+          className="min-h-[44px] p-3 bg-paper-50 dark:bg-night-850 border border-paper-border dark:border-night-border rounded-xl text-stone-600 dark:text-night-muted hover:text-forest-800 dark:hover:text-lime-300 hover:border-forest-600 dark:hover:border-lime-400 transition-colors flex items-center gap-2 font-mono text-xs cursor-pointer whitespace-nowrap shadow-sm"
           title="Configure Map Tile Provider & API Key"
         >
-          <Settings className="w-4 h-4 text-cyan-400" />
-          <span className="hidden md:inline">MAP SETTINGS</span>
+          <Settings className="w-4 h-4 text-forest-700 dark:text-lime-400" />
+          <span className="hidden md:inline font-semibold">MAP SETTINGS</span>
         </button>
       </div>
 
@@ -73,15 +99,15 @@ export const MapView: React.FC<MapViewProps> = ({
       </div>
 
       {/* Realtime Consensus Banner */}
-      <div className="p-3 bg-surface/90 border border-white/10 rounded-xl flex items-center justify-between text-xs font-mono">
+      <div className="p-3 bg-paper-50/95 dark:bg-night-850/95 border border-paper-border dark:border-night-border rounded-xl flex items-center justify-between text-xs font-mono shadow-sm">
         <div className="flex items-center gap-2">
-          <Radio className="w-4 h-4 text-cyan-400 animate-pulse" />
-          <span className="text-slate-300">
-            RADAR STATUS: <strong className="text-cyan-300">WEBSOCKET FEED ACTIVE</strong>
+          <Radio className="w-4 h-4 text-forest-700 dark:text-lime-400 animate-pulse" />
+          <span className="text-graphite-700 dark:text-night-muted">
+            RADAR STATUS: <strong className="text-forest-800 dark:text-lime-300">WEBSOCKET FEED ACTIVE</strong>
           </span>
         </div>
-        <div className="flex items-center gap-2 text-rose-400">
-          <AlertTriangle className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-1.5 text-terracotta-700 dark:text-terracotta-400 font-semibold">
+          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
           <span>{incidents.length} VERIFIED ACTIVE HOTSPOTS</span>
         </div>
       </div>

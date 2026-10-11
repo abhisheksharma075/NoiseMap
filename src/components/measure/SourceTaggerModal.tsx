@@ -40,13 +40,13 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const sources: { id: NoiseSourceType; label: string; icon: React.ReactNode }[] = [
-    { id: 'traffic', label: 'Traffic & Honking', icon: <Car className="w-4 h-4 text-cyan-400" /> },
-    { id: 'construction', label: 'Construction Work', icon: <Hammer className="w-4 h-4 text-amber-400" /> },
-    { id: 'loudspeaker', label: 'Loudspeaker / Events', icon: <Volume2 className="w-4 h-4 text-rose-400" /> },
-    { id: 'industrial', label: 'Industrial Machinery', icon: <Factory className="w-4 h-4 text-orange-400" /> },
-    { id: 'aircraft', label: 'Aviation / Aircraft', icon: <Plane className="w-4 h-4 text-blue-400" /> },
-    { id: 'siren', label: 'Emergency Sirens', icon: <Bell className="w-4 h-4 text-red-500" /> },
-    { id: 'unknown', label: 'Unidentified Ambient', icon: <HelpCircle className="w-4 h-4 text-slate-400" /> },
+    { id: 'traffic', label: 'Traffic & Honking', icon: <Car className="w-4 h-4 text-forest-600 dark:text-lime-400" /> },
+    { id: 'construction', label: 'Construction Work', icon: <Hammer className="w-4 h-4 text-terracotta-600 dark:text-terracotta-400" /> },
+    { id: 'loudspeaker', label: 'Loudspeaker / Events', icon: <Volume2 className="w-4 h-4 text-terracotta-700 dark:text-terracotta-300" /> },
+    { id: 'industrial', label: 'Industrial Machinery', icon: <Factory className="w-4 h-4 text-olive-700 dark:text-olive-300" /> },
+    { id: 'aircraft', label: 'Aviation / Aircraft', icon: <Plane className="w-4 h-4 text-forest-700 dark:text-forest-300" /> },
+    { id: 'siren', label: 'Emergency Sirens', icon: <Bell className="w-4 h-4 text-terracotta-600 dark:text-terracotta-400" /> },
+    { id: 'unknown', label: 'Unidentified Ambient', icon: <HelpCircle className="w-4 h-4 text-stone-500 dark:text-stone-400" /> },
   ];
 
   const zones: { id: NoiseZoneType; label: string; dayLimit: string; nightLimit: string }[] = [
@@ -57,7 +57,6 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
   ];
 
   const handleSubmit = async () => {
-    // Validation: Ensure valid metrics and selections
     if (!avgDb || avgDb <= 0) {
       setValidationError('Invalid acoustic sample: Decibel level must be greater than 0 dB.');
       return;
@@ -90,39 +89,39 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain">
-      <div className="w-full max-w-lg my-auto max-h-[92vh] max-h-[92dvh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-graphite-950/65 dark:bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain">
+      <div className="w-full max-w-lg my-auto max-h-[92vh] max-h-[92dvh] flex flex-col min-h-0 animate-in fade-in zoom-in-95 duration-200">
         <VectorCard
-          label="SAMPLE COMPLETED [METRICS CAPTURED]"
-          tag={isSubmitting ? 'TRANSMITTING...' : 'READY TO SUBMIT'}
-          variant={isSubmitting ? 'amber' : 'cyan'}
-          className="flex flex-col max-h-[92vh] max-h-[92dvh] p-4 sm:p-5"
+          label="SAMPLE COMPLETED · METRICS CAPTURED"
+          tag={isSubmitting ? 'TRANSMITTING...' : 'READY FOR VERIFICATION'}
+          variant={isSubmitting ? 'olive' : 'forest'}
+          className="flex flex-col max-h-[92vh] max-h-[92dvh] min-h-0 p-4 sm:p-5 overflow-hidden shadow-xl"
         >
           {/* Top Dismiss Button */}
           <button
             onClick={handleDiscardClick}
             disabled={isSubmitting}
             aria-label="Discard Sample"
-            className="absolute top-2.5 right-2.5 text-slate-400 hover:text-white p-1 rounded transition-colors disabled:opacity-40 cursor-pointer"
+            className="absolute top-3 right-3 text-stone-500 hover:text-graphite-900 dark:hover:text-night-text p-1.5 rounded-md hover:bg-paper-200 dark:hover:bg-night-800 transition-colors disabled:opacity-40 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
 
           {/* Scrollable Modal Body */}
-          <div className="flex-1 overflow-y-auto pr-1 space-y-4 overscroll-contain pb-2">
+          <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-4 overscroll-contain pb-2">
             {/* Summary Metric Strip */}
-            <div className="grid grid-cols-3 gap-2 p-3 bg-slate-950 border border-white/10 rounded-lg font-mono text-center">
+            <div className="grid grid-cols-3 gap-2 p-3 bg-paper-100 dark:bg-night-900 border border-paper-border dark:border-night-border rounded-lg font-mono text-center">
               <div>
-                <span className="text-[10px] text-slate-400 block uppercase">Avg Level</span>
-                <span className="text-lg sm:text-xl font-bold text-cyan-300">{avgDb.toFixed(1)} dB</span>
+                <span className="text-[10px] text-stone-500 dark:text-night-muted block uppercase tracking-wider font-semibold">Avg Leq</span>
+                <span className="text-lg sm:text-xl font-bold text-forest-800 dark:text-lime-300 font-serif">{avgDb.toFixed(1)} <span className="text-xs font-mono font-normal">dB</span></span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block uppercase">Peak Hold</span>
-                <span className="text-lg sm:text-xl font-bold text-rose-400">{peakDb.toFixed(1)} dB</span>
+                <span className="text-[10px] text-stone-500 dark:text-night-muted block uppercase tracking-wider font-semibold">Peak Hold</span>
+                <span className="text-lg sm:text-xl font-bold text-terracotta-600 dark:text-terracotta-400 font-serif">{peakDb.toFixed(1)} <span className="text-xs font-mono font-normal">dB</span></span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block uppercase">Grid Cell</span>
-                <span className="text-[11px] sm:text-xs font-semibold text-slate-300 mt-1 block truncate">
+                <span className="text-[10px] text-stone-500 dark:text-night-muted block uppercase tracking-wider font-semibold">Grid Cell</span>
+                <span className="text-[11px] sm:text-xs font-semibold text-graphite-800 dark:text-night-text mt-1 block truncate">
                   {gridId}
                 </span>
               </div>
@@ -130,17 +129,17 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
 
             {/* Validation Error Banner */}
             {validationError && (
-              <div className="p-2.5 bg-rose-950/60 border border-rose-500/40 rounded-lg text-rose-200 text-xs font-mono flex items-start gap-2 animate-in fade-in">
-                <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+              <div className="p-3 bg-terracotta-50 dark:bg-terracotta-950/40 border border-terracotta-500/40 rounded-lg text-terracotta-800 dark:text-terracotta-200 text-xs font-mono flex items-start gap-2 animate-in fade-in">
+                <AlertCircle className="w-4 h-4 text-terracotta-600 dark:text-terracotta-400 flex-shrink-0 mt-0.5" />
                 <span>{validationError}</span>
               </div>
             )}
 
             {/* Noise Source Selection */}
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-slate-300 flex items-center justify-between font-medium">
-                <span>01. IDENTIFY NOISE SOURCE:</span>
-                <span className="text-[10px] text-slate-400 uppercase">Single Choice</span>
+              <label className="text-xs font-mono text-graphite-800 dark:text-night-text flex items-center justify-between font-semibold">
+                <span>01. IDENTIFY ACOUSTIC SOURCE:</span>
+                <span className="text-[10px] text-stone-500 dark:text-night-muted font-normal uppercase">Single Selection</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {sources.map((s) => {
@@ -154,10 +153,10 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
                         setSelectedSource(s.id);
                         setValidationError(null);
                       }}
-                      className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-left font-mono text-xs transition-all cursor-pointer ${
+                      className={`flex items-center gap-2.5 p-2.5 min-h-[44px] rounded-lg border text-left font-mono text-xs transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-cyan-950/70 border-cyan-400 text-cyan-200 shadow-glow-cyan/20 ring-1 ring-cyan-400/50'
-                          : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
+                          ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 font-semibold shadow-sm'
+                          : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400/60'
                       }`}
                     >
                       <span className="flex-shrink-0">{s.icon}</span>
@@ -170,9 +169,9 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
 
             {/* Area Zone Classification */}
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-slate-300 flex items-center justify-between font-medium">
+              <label className="text-xs font-mono text-graphite-800 dark:text-night-text flex items-center justify-between font-semibold">
                 <span>02. AREA ZONE CLASSIFICATION (CPCB LIMITS):</span>
-                <span className="text-[10px] text-slate-400 uppercase">Statutory Category</span>
+                <span className="text-[10px] text-stone-500 dark:text-night-muted font-normal uppercase">Statutory Rule</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {zones.map((z) => {
@@ -186,14 +185,16 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
                         setSelectedZone(z.id);
                         setValidationError(null);
                       }}
-                      className={`flex flex-col p-2.5 rounded-lg border text-left font-mono text-xs transition-all cursor-pointer ${
+                      className={`flex flex-col p-2.5 min-h-[48px] rounded-lg border text-left font-mono text-xs transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-amber-950/60 border-amber-400 text-amber-200 shadow-glow-amber/20 ring-1 ring-amber-400/50'
-                          : 'bg-slate-900/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20'
+                          ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 shadow-sm'
+                          : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400/60'
                       }`}
                     >
-                      <span className="font-semibold text-white">{z.label}</span>
-                      <span className="text-[10px] text-slate-400 mt-0.5">
+                      <span className={`font-semibold ${isSelected ? 'text-paper-50 dark:text-forest-950' : 'text-graphite-900 dark:text-night-text'}`}>
+                        {z.label}
+                      </span>
+                      <span className={`text-[10px] mt-0.5 ${isSelected ? 'text-paper-200 dark:text-forest-800' : 'text-stone-500 dark:text-night-muted'}`}>
                         Day: {z.dayLimit} · Night: {z.nightLimit}
                       </span>
                     </button>
@@ -204,14 +205,14 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
           </div>
 
           {/* Sticky Bottom Actions Container */}
-          <div className="pt-3 mt-1 border-t border-white/10 flex-shrink-0">
+          <div className="pt-3 mt-1 border-t border-paper-border dark:border-night-border flex-shrink-0">
             {showDiscardConfirm ? (
-              <div className="p-3 bg-rose-950/80 border border-rose-500/50 rounded-lg space-y-2 animate-in fade-in">
-                <div className="flex items-center gap-2 text-rose-200 font-mono text-xs font-semibold">
-                  <Trash2 className="w-4 h-4 text-rose-400" />
+              <div className="p-3 bg-terracotta-50 dark:bg-night-900 border border-terracotta-300 dark:border-terracotta-700 rounded-lg space-y-2 animate-in fade-in">
+                <div className="flex items-center gap-2 text-terracotta-900 dark:text-terracotta-200 font-mono text-xs font-semibold">
+                  <Trash2 className="w-4 h-4 text-terracotta-600 dark:text-terracotta-400" />
                   <span>Discard this measurement sample?</span>
                 </div>
-                <p className="text-[11px] font-mono text-slate-300">
+                <p className="text-[11px] font-mono text-graphite-600 dark:text-night-muted leading-relaxed">
                   This will clear the current 10-second audio telemetry. Previous reports and user streaks will remain safe.
                 </p>
                 <div className="flex gap-2 pt-1">
@@ -224,7 +225,7 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
                     KEEP SAMPLE
                   </TactileButton>
                   <TactileButton
-                    variant="crimson"
+                    variant="terracotta"
                     size="sm"
                     className="flex-1"
                     onClick={handleConfirmDiscard}
@@ -245,15 +246,15 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
                   DISCARD SAMPLE
                 </TactileButton>
                 <TactileButton
-                  variant="cyan"
+                  variant="forest"
                   size="md"
                   disabled={isSubmitting}
                   className="w-full sm:flex-1 py-3 text-xs sm:text-sm order-1 sm:order-2"
                   icon={
                     isSubmitting ? (
-                      <Loader2 className="w-4 h-4 text-cyan-300 animate-spin" />
+                      <Loader2 className="w-4 h-4 text-lime-400 animate-spin" />
                     ) : (
-                      <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+                      <CheckCircle2 className="w-4 h-4 text-lime-300" />
                     )
                   }
                   onClick={handleSubmit}

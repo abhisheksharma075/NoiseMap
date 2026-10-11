@@ -39,6 +39,7 @@ export interface NoiseIncident {
   evidence_score: number; // 0-100%
   status: 'active' | 'resolved';
   created_at: string;
+  reading_ids?: string[];
 }
 
 export interface UserPin {

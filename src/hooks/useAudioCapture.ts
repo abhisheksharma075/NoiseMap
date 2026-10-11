@@ -30,6 +30,7 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
 
   const countdownIntervalRef = useRef<number | null>(null);
   const metricsIntervalRef = useRef<number | null>(null);
+  const isSamplingRef = useRef<boolean>(false);
 
   const stopSampling = useCallback(() => {
     if (countdownIntervalRef.current) {
@@ -41,8 +42,24 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       metricsIntervalRef.current = null;
     }
 
+    if (!isSamplingRef.current && !audioDspEngine.isActive()) {
+      return;
+    }
+
+    isSamplingRef.current = false;
     const finalMetrics = audioDspEngine.stop();
-    setMetrics(finalMetrics);
+
+    setMetrics((prev) => {
+      // Ensure we do not overwrite valid accumulated metrics with zeroes
+      if (finalMetrics.avgDb > 0) {
+        return finalMetrics;
+      }
+      if (prev.avgDb > 0) {
+        return prev;
+      }
+      return finalMetrics;
+    });
+
     setIsSampling(false);
     setIsComplete(true);
     setAnalyserNode(null);
@@ -54,6 +71,8 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       setPermissionDenied(false);
       setIsComplete(false);
       setCountdown(10);
+      setMetrics({ instantDb: 0, avgDb: 0, peakDb: 0 });
+      audioDspEngine.reset();
 
       // Attempt to retrieve and quantize geolocation in parallel
       try {
@@ -76,9 +95,17 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       const analyser = await audioDspEngine.start();
       setAnalyserNode(analyser);
       setIsSampling(true);
+      isSamplingRef.current = true;
+
+      // Immediately take a first sample reading
+      const initialMetrics = audioDspEngine.getMetrics();
+      if (initialMetrics.avgDb > 0) {
+        setMetrics(initialMetrics);
+      }
 
       // Poll real-time decibel metrics at 20fps for smooth needle animation
       metricsIntervalRef.current = window.setInterval(() => {
+        if (!isSamplingRef.current) return;
         const current = audioDspEngine.getMetrics();
         setMetrics(current);
       }, 50);
@@ -94,6 +121,7 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       }, 1000);
 
     } catch (err: unknown) {
+      isSamplingRef.current = false;
       const errObj = err as { name?: string; message?: string };
       if (errObj.name === 'NotAllowedError' || errObj.name === 'PermissionDeniedError') {
         setPermissionDenied(true);
@@ -106,15 +134,30 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
   }, [stopSampling]);
 
   const reset = useCallback(() => {
-    stopSampling();
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
+    }
+    if (metricsIntervalRef.current) {
+      clearInterval(metricsIntervalRef.current);
+      metricsIntervalRef.current = null;
+    }
+    isSamplingRef.current = false;
+    if (audioDspEngine.isActive()) {
+      audioDspEngine.stop();
+    }
+    audioDspEngine.reset();
+    setIsSampling(false);
     setIsComplete(false);
     setCountdown(10);
     setMetrics({ instantDb: 0, avgDb: 0, peakDb: 0 });
+    setAnalyserNode(null);
     setError(null);
-  }, [stopSampling]);
+  }, []);
 
   useEffect(() => {
     return () => {
+      isSamplingRef.current = false;
       if (audioDspEngine.isActive()) {
         audioDspEngine.stop();
       }

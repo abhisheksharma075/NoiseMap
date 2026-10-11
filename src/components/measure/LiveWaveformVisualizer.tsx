@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 
 interface LiveWaveformVisualizerProps {
   analyserNode: AnalyserNode | null;
@@ -13,6 +14,7 @@ export const LiveWaveformVisualizer: React.FC<LiveWaveformVisualizerProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -28,18 +30,20 @@ export const LiveWaveformVisualizer: React.FC<LiveWaveformVisualizerProps> = ({
       dataArray = new Uint8Array(bufferLength);
     }
 
+    const isDark = theme === 'dark';
+
     const draw = () => {
       animationFrameIdRef.current = requestAnimationFrame(draw);
 
       const width = canvas.width;
       const height = canvas.height;
 
-      // Dark background with slight phosphor persistence trail
-      ctx.fillStyle = 'rgba(11, 15, 23, 0.35)';
+      // Clean canvas background
+      ctx.fillStyle = isDark ? '#1C231E' : '#F4F1E8';
       ctx.fillRect(0, 0, width, height);
 
-      // Draw subtle horizontal center grid guideline
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      // Subtle horizontal center grid guideline
+      ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(37, 41, 34, 0.08)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, height / 2);
@@ -50,9 +54,7 @@ export const LiveWaveformVisualizer: React.FC<LiveWaveformVisualizerProps> = ({
         analyserNode.getByteTimeDomainData(dataArray);
 
         ctx.lineWidth = 2;
-        ctx.strokeStyle = '#00F2FE';
-        ctx.shadowColor = '#00F2FE';
-        ctx.shadowBlur = 8;
+        ctx.strokeStyle = isDark ? '#D5E66B' : '#354C3C';
         ctx.beginPath();
 
         const sliceWidth = width / bufferLength;
@@ -73,11 +75,10 @@ export const LiveWaveformVisualizer: React.FC<LiveWaveformVisualizerProps> = ({
 
         ctx.lineTo(width, height / 2);
         ctx.stroke();
-        ctx.shadowBlur = 0; // reset
       } else {
         // Flat standby beam
         ctx.lineWidth = 1.5;
-        ctx.strokeStyle = 'rgba(0, 242, 254, 0.3)';
+        ctx.strokeStyle = isDark ? 'rgba(213, 230, 107, 0.35)' : 'rgba(53, 76, 60, 0.35)';
         ctx.beginPath();
         ctx.moveTo(0, height / 2);
         ctx.lineTo(width, height / 2);
@@ -92,19 +93,19 @@ export const LiveWaveformVisualizer: React.FC<LiveWaveformVisualizerProps> = ({
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
-  }, [analyserNode, isActive]);
+  }, [analyserNode, isActive, theme]);
 
   return (
-    <div className={`relative rounded-lg overflow-hidden border border-white/10 bg-slate-950 p-1 ${className}`}>
-      <div className="absolute top-1 left-2 font-mono text-[9px] text-cyan-400/80 z-10 flex items-center gap-1">
-        <span className="w-1 h-1 rounded-full bg-cyan-400"></span>
-        CRT OSCILLOSCOPE [CH1_PCM]
+    <div className={`relative rounded-xl overflow-hidden border border-paper-border dark:border-night-border bg-paper dark:bg-night-bg p-1 shadow-field ${className}`}>
+      <div className="absolute top-1.5 left-2.5 font-mono text-[9px] text-graphite-secondary dark:text-night-secondary z-10 flex items-center gap-1.5 font-medium">
+        <span className="w-1.5 h-1.5 rounded-full bg-forest dark:bg-lime-signal"></span>
+        FIELD OSCILLOSCOPE [CH1_PCM]
       </div>
       <canvas
         ref={canvasRef}
         width={400}
         height={70}
-        className="w-full h-16 block rounded"
+        className="w-full h-16 block rounded-lg"
       />
     </div>
   );

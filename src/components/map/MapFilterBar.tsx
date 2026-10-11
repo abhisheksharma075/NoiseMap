@@ -37,18 +37,18 @@ export const MapFilterBar: React.FC<MapFilterBarProps> = ({
   ];
 
   return (
-    <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-surface/90 backdrop-blur-md border border-white/10 rounded-xl font-mono text-xs">
+    <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-paper-50/95 dark:bg-night-850/95 backdrop-blur-md border border-paper-border dark:border-night-border rounded-xl font-mono text-xs shadow-sm">
       {/* Time Filter Pills */}
       <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
-        <Clock className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0 mr-1" />
+        <Clock className="w-3.5 h-3.5 text-forest-700 dark:text-lime-400 flex-shrink-0 mr-1" />
         {timeOptions.map((t) => (
           <button
             key={t.id}
             onClick={() => onChangeTimeFilter(t.id)}
-            className={`px-2.5 py-1 rounded text-[11px] whitespace-nowrap transition-colors cursor-pointer ${
+            className={`min-h-[36px] px-3 py-1.5 rounded-lg text-[11px] whitespace-nowrap transition-all cursor-pointer ${
               timeFilter === t.id
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-semibold shadow-sm'
-                : 'bg-slate-900/60 text-slate-400 hover:text-white border border-transparent'
+                ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 font-semibold shadow-xs'
+                : 'bg-paper-100 dark:bg-night-800 text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text border border-paper-border/60 dark:border-night-border'
             }`}
           >
             {t.label}
@@ -59,11 +59,11 @@ export const MapFilterBar: React.FC<MapFilterBarProps> = ({
       {/* Source Dropdown & Telemetry Count */}
       <div className="flex items-center justify-between w-full sm:w-auto gap-3">
         <div className="flex items-center gap-1.5">
-          <Filter className="w-3.5 h-3.5 text-amber-400" />
+          <Filter className="w-3.5 h-3.5 text-olive-600 dark:text-lime-400" />
           <select
             value={sourceFilter}
             onChange={(e) => onChangeSourceFilter(e.target.value as NoiseSourceType | 'all')}
-            className="bg-slate-900 border border-white/10 text-slate-200 rounded px-2.5 py-1 text-[11px] font-mono focus:outline-none focus:border-cyan-500 cursor-pointer"
+            className="bg-paper-100 dark:bg-night-800 border border-paper-border dark:border-night-border text-graphite-800 dark:text-night-text rounded-lg px-2.5 py-1.5 text-[11px] font-mono focus:outline-none focus:border-forest-600 dark:focus:border-lime-400 cursor-pointer"
           >
             {sourceOptions.map((s) => (
               <option key={s.id} value={s.id}>
@@ -73,9 +73,9 @@ export const MapFilterBar: React.FC<MapFilterBarProps> = ({
           </select>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-400 text-[11px]">
-          <Volume2 className="w-3 h-3 text-cyan-400" />
-          <span>NODES: <strong className="text-white">{activeCount}</strong></span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-paper-100 dark:bg-night-800 border border-paper-border dark:border-night-border text-stone-600 dark:text-night-muted text-[11px]">
+          <Volume2 className="w-3 h-3 text-forest-700 dark:text-lime-400" />
+          <span>NODES: <strong className="text-graphite-900 dark:text-night-text">{activeCount}</strong></span>
         </div>
       </div>
     </div>

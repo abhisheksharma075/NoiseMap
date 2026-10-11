@@ -55,15 +55,15 @@ export const AlertPinsPanel: React.FC<AlertPinsPanelProps> = ({
     <VectorCard
       label="GEO-FENCED ALERT PINS"
       tag="THRESHOLD RISK MONITOR"
-      variant="amber"
-      className="space-y-4"
+      variant="olive"
+      className="space-y-4 shadow-md"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 className="text-base font-bold text-white font-mono">
+          <h3 className="text-base font-bold text-graphite-900 dark:text-night-text font-serif">
             Monitored Sensitive Zones
           </h3>
-          <p className="text-xs text-slate-400 font-mono">
+          <p className="text-xs text-stone-600 dark:text-night-muted font-mono">
             Receive automated alerts when sustained noise breaches your safe limits
           </p>
         </div>
@@ -72,16 +72,16 @@ export const AlertPinsPanel: React.FC<AlertPinsPanelProps> = ({
           <TactileButton
             variant="ghost"
             size="sm"
-            icon={<Bell className="w-3.5 h-3.5 text-cyan-400" />}
+            icon={<Bell className="w-3.5 h-3.5 text-forest-700 dark:text-lime-400" />}
             onClick={handleTestNotification}
           >
             TEST PUSH
           </TactileButton>
 
           <TactileButton
-            variant="amber"
+            variant="forest"
             size="sm"
-            icon={<Plus className="w-3.5 h-3.5 text-amber-400" />}
+            icon={<Plus className="w-3.5 h-3.5 text-paper-50 dark:text-forest-950" />}
             onClick={() => setShowAddForm(!showAddForm)}
           >
             ADD PIN
@@ -91,26 +91,26 @@ export const AlertPinsPanel: React.FC<AlertPinsPanelProps> = ({
 
       {/* Add New Pin Form */}
       {showAddForm && (
-        <div className="p-3 bg-slate-950 border border-white/10 rounded-lg space-y-3 font-mono text-xs animate-in fade-in duration-150">
+        <div className="p-3 bg-paper-100 dark:bg-night-900 border border-paper-border dark:border-night-border rounded-lg space-y-3 font-mono text-xs animate-in fade-in duration-150 shadow-sm">
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={newLabel}
               onChange={(e) => setNewLabel(e.target.value)}
               placeholder="e.g. Home, School, Hospital"
-              className="flex-1 bg-slate-900 border border-white/10 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-cyan-500"
+              className="flex-1 bg-paper-50 dark:bg-night-800 border border-paper-border dark:border-night-border rounded-lg px-3 py-1.5 text-graphite-900 dark:text-night-text focus:outline-none focus:border-forest-600 dark:focus:border-lime-400"
             />
             <div className="flex items-center gap-2">
-              <span className="text-slate-400">ALERT THRESHOLD:</span>
+              <span className="text-stone-600 dark:text-night-muted">ALERT THRESHOLD:</span>
               <input
                 type="number"
                 min="40"
                 max="90"
                 value={newThreshold}
                 onChange={(e) => setNewThreshold(parseInt(e.target.value) || 65)}
-                className="w-16 bg-slate-900 border border-white/10 rounded px-2 py-1.5 text-center text-amber-300 font-bold"
+                className="w-16 bg-paper-50 dark:bg-night-800 border border-paper-border dark:border-night-border rounded-lg px-2 py-1.5 text-center text-forest-800 dark:text-lime-300 font-bold"
               />
-              <span className="text-slate-400">dB</span>
+              <span className="text-stone-600 dark:text-night-muted">dB</span>
             </div>
           </div>
 
@@ -118,7 +118,7 @@ export const AlertPinsPanel: React.FC<AlertPinsPanelProps> = ({
             <TactileButton variant="ghost" size="sm" onClick={() => setShowAddForm(false)}>
               CANCEL
             </TactileButton>
-            <TactileButton variant="cyan" size="sm" onClick={handleAddPin}>
+            <TactileButton variant="forest" size="sm" onClick={handleAddPin}>
               SAVE PIN
             </TactileButton>
           </div>
@@ -130,27 +130,27 @@ export const AlertPinsPanel: React.FC<AlertPinsPanelProps> = ({
         {pins.map((pin) => (
           <div
             key={pin.id}
-            className="flex items-center justify-between p-3 bg-slate-950/70 border border-white/5 rounded-lg font-mono text-xs"
+            className="flex items-center justify-between p-3 bg-paper-100 dark:bg-night-900 border border-paper-border dark:border-night-border rounded-lg font-mono text-xs shadow-xs"
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded bg-amber-950/60 border border-amber-500/40 flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-amber-400" />
+              <div className="w-8 h-8 rounded-lg bg-olive-100 dark:bg-olive-950/60 border border-olive-300 dark:border-olive-700 flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-4 h-4 text-olive-700 dark:text-lime-400" />
               </div>
               <div>
-                <span className="font-bold text-white block">{pin.label}</span>
-                <span className="text-[11px] text-slate-400">
-                  Threshold: <strong className="text-amber-300">{pin.threshold_db} dB(A)</strong> · Sector {pin.lat.toFixed(3)}_{pin.lng.toFixed(3)}
+                <span className="font-bold text-graphite-900 dark:text-night-text block">{pin.label}</span>
+                <span className="text-[11px] text-stone-600 dark:text-night-muted">
+                  Threshold: <strong className="text-terracotta-700 dark:text-terracotta-400">{pin.threshold_db} dB(A)</strong> · Sector {pin.lat.toFixed(3)}_{pin.lng.toFixed(3)}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/30 text-emerald-400 flex items-center gap-1">
+              <span className="text-[10px] px-2.5 py-1 rounded-full bg-forest-100 dark:bg-forest-950/60 border border-forest-300 dark:border-forest-700 text-forest-800 dark:text-lime-300 flex items-center gap-1 font-semibold">
                 <ShieldCheck className="w-3 h-3" /> ACTIVE WATCH
               </span>
               <button
                 onClick={() => handleDeletePin(pin.id)}
-                className="text-slate-500 hover:text-rose-400 p-1.5 transition-colors cursor-pointer"
+                className="text-stone-400 hover:text-terracotta-600 dark:hover:text-terracotta-400 p-1.5 transition-colors cursor-pointer"
                 title="Remove Pin"
               >
                 <Trash2 className="w-3.5 h-3.5" />

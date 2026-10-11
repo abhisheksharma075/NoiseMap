@@ -38,35 +38,43 @@ export const InstallPromptBanner: React.FC = () => {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed top-16 inset-x-0 mx-auto w-[92%] max-w-lg z-50 animate-in slide-in-from-top-4 duration-300 font-mono text-xs">
-      <div className="p-3 bg-surface/95 backdrop-blur-md border border-cyan-500/40 rounded-xl shadow-glow-cyan/20 flex items-center justify-between gap-3">
+    <aside
+      aria-label="Install NoiseMap PWA"
+      className="fixed top-14 inset-x-0 mx-auto w-[94%] max-w-lg z-50 animate-in slide-in-from-top-3 duration-200 font-sans"
+    >
+      <div className="p-3 sm:p-3.5 bg-paper-soft dark:bg-night-surface border border-forest/30 dark:border-forest/50 rounded-2xl shadow-field-lg flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-500/40 flex items-center justify-center">
-            <Smartphone className="w-4 h-4 text-cyan-400" />
+          <div className="w-8 h-8 rounded-xl bg-forest-subtle dark:bg-forest/30 text-forest dark:text-lime-signal flex items-center justify-center flex-shrink-0">
+            <Smartphone className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-bold text-white block">INSTALL NOISEMAP PWA</span>
-            <span className="text-[11px] text-slate-400">Zero-install mobile sensor grid for your home screen</span>
+            <span className="font-bold text-graphite dark:text-night-text text-xs sm:text-sm block">
+              Install NoiseMap PWA
+            </span>
+            <span className="text-[11px] text-graphite-secondary dark:text-night-secondary">
+              Phone-friendly acoustic monitor for your home screen
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           <TactileButton
-            variant="cyan"
+            variant="lime"
             size="sm"
-            icon={<Download className="w-3.5 h-3.5 text-cyan-400" />}
+            icon={<Download className="w-3.5 h-3.5" />}
             onClick={handleInstallClick}
           >
             INSTALL
           </TactileButton>
           <button
             onClick={() => setShowBanner(false)}
-            className="text-slate-500 hover:text-white p-1 transition-colors"
+            aria-label="Dismiss install banner"
+            className="text-graphite-secondary dark:text-night-secondary hover:text-graphite dark:hover:text-night-text p-1.5 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };

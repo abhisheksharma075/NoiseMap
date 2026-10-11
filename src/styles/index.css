@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light dark;
 }
 
 /* Mobile viewport and Safe Area Insets */
@@ -12,85 +12,94 @@ html, body {
   min-height: 100dvh;
   -webkit-text-size-adjust: 100%;
   overflow-x: hidden;
+  background-color: #F4F1E8;
+  color: #252922;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Zajno Retro-Vector Coordinate Grid Background */
-.bg-vector-grid {
-  background-color: #0B0F17;
+.dark html, .dark body {
+  background-color: #1C231E;
+  color: #F4F1E8;
+}
+
+/* Urban Fieldwork Coordinate Grid Background */
+.bg-field-grid {
+  background-color: #F4F1E8;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(to right, rgba(37, 41, 34, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(37, 41, 34, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
-/* Subtle CRT scanline effect */
-.crt-scanlines {
-  position: relative;
-}
-.crt-scanlines::after {
-  content: " ";
-  display: block;
-  position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-  background-size: 100% 4px;
-  z-index: 20;
-  pointer-events: none;
-  opacity: 0.35;
-}
-
-/* Radar rotation beam animation */
-@keyframes radar-sweep {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-radar-sweep {
-  animation: radar-sweep 4s linear infinite;
-  transform-origin: center;
-}
-
-/* Pulsing acoustic ripple for map markers */
-@keyframes acoustic-pulse {
-  0% {
-    transform: scale(0.95);
-    opacity: 0.9;
-  }
-  50% {
-    transform: scale(1.6);
-    opacity: 0.2;
-  }
-  100% {
-    transform: scale(0.95);
-    opacity: 0.9;
-  }
-}
-
-.animate-acoustic-pulse {
-  animation: acoustic-pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.dark .bg-field-grid {
+  background-color: #1C231E;
+  background-image: 
+    linear-gradient(to right, rgba(244, 241, 232, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(244, 241, 232, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
 /* Custom scrollbars for technical data panels */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F17;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E293B;
-  border-radius: 2px;
+  background: #DCD9CE;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #74766C;
 }
 
-/* Inverted Dark Mode styling for standard OpenStreetMap tiles */
-.osm-dark-tiles {
-  filter: invert(100%) hue-rotate(180deg) brightness(90%) contrast(90%);
+.dark ::-webkit-scrollbar-thumb {
+  background: #3C443D;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #74766C;
+}
+
+/* Touch action optimization */
+button, a, input, select {
+  touch-action: manipulation;
+}
+
+/* Leaflet Cartography Customizations */
+.leaflet-container {
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+/* Pulsing live location marker beacon */
+@keyframes location-radar-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+}
+
+.animate-location-pulse {
+  animation: location-radar-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Accessibility: Respect user reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
