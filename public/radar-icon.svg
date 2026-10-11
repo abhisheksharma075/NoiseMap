@@ -1,15 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <!-- Outer Field Housing -->
-  <circle cx="50" cy="50" r="46" fill="#26382D" stroke="#DCD9CE" stroke-width="2" />
-  <!-- Secondary Listening Range -->
-  <circle cx="50" cy="50" r="34" fill="none" stroke="#798263" stroke-width="1.5" stroke-dasharray="3,3" />
-  <!-- Calibrated Focus Ring -->
-  <circle cx="50" cy="50" r="20" fill="none" stroke="#D5E66B" stroke-width="2" />
-  <!-- Instrument Crosshairs -->
-  <line x1="50" y1="8" x2="50" y2="92" stroke="#F4F1E8" stroke-width="1" stroke-opacity="0.35" />
-  <line x1="8" y1="50" x2="92" y2="50" stroke="#F4F1E8" stroke-width="1" stroke-opacity="0.35" />
-  <!-- Acoustic Wave Sector -->
-  <path d="M50 50 L75 25 A 35 35 0 0 0 50 15 Z" fill="#D5E66B" opacity="0.3" />
-  <!-- Center Bio-Acoustic Core -->
-  <circle cx="50" cy="50" r="5" fill="#D5E66B" stroke="#26382D" stroke-width="1.5" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient: Deep Forest -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B2B20" />
+      <stop offset="100%" stop-color="#26382D" />
+    </linearGradient>
+    <!-- Lime Glow Filter -->
+    <filter id="limeGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#D5E66B" flood-opacity="0.45" />
+    </filter>
+    <radialGradient id="sweepGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#D5E66B" stop-opacity="0.5" />
+      <stop offset="70%" stop-color="#D5E66B" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#D5E66B" stop-opacity="0.0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Housing (Squircle / App Icon Body) -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect x="4" y="4" width="504" height="504" rx="108" fill="none" stroke="#DCD9CE" stroke-width="3" stroke-opacity="0.2" />
+
+  <!-- Outer Resonance Boundary -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#DCD9CE" stroke-width="3" stroke-dasharray="8 12" stroke-opacity="0.3" />
+  
+  <!-- Middle Acoustic Range Ring -->
+  <circle cx="256" cy="256" r="160" fill="none" stroke="#798263" stroke-width="4.5" stroke-opacity="0.75" />
+
+  <!-- Inner Dynamic Resonance Ring -->
+  <circle cx="256" cy="256" r="105" fill="none" stroke="#D5E66B" stroke-width="7" stroke-dasharray="480 160" filter="url(#limeGlow)" />
+
+  <!-- Precision Geodetic Crosshairs -->
+  <line x1="256" y1="36" x2="256" y2="476" stroke="#F4F1E8" stroke-width="3" stroke-opacity="0.4" />
+  <line x1="36" y1="256" x2="476" y2="256" stroke="#F4F1E8" stroke-width="3" stroke-opacity="0.4" />
+  
+  <!-- Degree Ticks -->
+  <circle cx="256" cy="50" r="4" fill="#D5E66B" />
+  <circle cx="256" cy="462" r="4" fill="#D5E66B" />
+  <circle cx="50" cy="256" r="4" fill="#D5E66B" />
+  <circle cx="462" cy="256" r="4" fill="#D5E66B" />
+
+  <!-- 100m Acoustic Sector Sweep Cone -->
+  <path d="M256 256 L390 122 A 190 190 0 0 0 256 66 Z" fill="url(#sweepGrad)" />
+
+  <!-- Transducer Core Center -->
+  <circle cx="256" cy="256" r="32" fill="#1B2B20" stroke="#D5E66B" stroke-width="5" />
+  <circle cx="256" cy="256" r="18" fill="#D5E66B" filter="url(#limeGlow)" />
+  <circle cx="256" cy="256" r="6" fill="#1B2B20" />
 </svg>

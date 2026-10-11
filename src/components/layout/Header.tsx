@@ -1,6 +1,7 @@
 import React from 'react';
-import { Radio, Navigation, Activity, Sun, Moon } from 'lucide-react';
+import { Navigation, Sun, Moon, Activity } from 'lucide-react';
 import { StatusBadge } from '../common/StatusBadge';
+import { NoiseMapLogo } from '../common/NoiseMapLogo';
 import { useTheme } from '../../context/ThemeContext';
 
 interface HeaderProps {
@@ -26,26 +27,10 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Brand / Field Instrument Identity */}
         <div
           onClick={onNavigateHome}
-          className={`flex items-center gap-2.5 sm:gap-3 ${onNavigateHome ? 'cursor-pointer group' : ''}`}
+          className={`flex items-center ${onNavigateHome ? 'cursor-pointer group' : ''}`}
           title={onNavigateHome ? 'Return to Overview' : undefined}
         >
-          <div className="relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-forest text-lime-signal rounded-xl overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
-            <Radio className="w-4 h-4 sm:w-5 sm:h-5 text-lime-signal" />
-          </div>
-
-          <div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="font-bold tracking-tight font-sans text-sm sm:text-base text-graphite dark:text-night-text">
-                NOISE<span className="text-forest dark:text-lime-signal">MAP</span>
-              </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-md bg-paper dark:bg-night-bg border border-paper-border dark:border-night-border text-graphite-secondary dark:text-night-secondary font-medium">
-                PWA
-              </span>
-            </div>
-            <p className="text-[10px] sm:text-[11px] text-graphite-secondary dark:text-night-secondary font-sans hidden sm:block">
-              Civic Acoustic Intelligence
-            </p>
-          </div>
+          <NoiseMapLogo size="md" className="group-hover:opacity-90 transition-opacity" />
         </div>
 
         {/* Real-time Field Telemetry Strip & Controls */}

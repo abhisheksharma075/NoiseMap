@@ -38,22 +38,41 @@ export const MapFilterBar: React.FC<MapFilterBarProps> = ({
 
   return (
     <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-paper-50/95 dark:bg-night-850/95 backdrop-blur-md border border-paper-border dark:border-night-border rounded-xl font-mono text-xs shadow-sm">
-      {/* Time Filter Pills */}
-      <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
-        <Clock className="w-3.5 h-3.5 text-forest-700 dark:text-lime-400 flex-shrink-0 mr-1" />
-        {timeOptions.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => onChangeTimeFilter(t.id)}
-            className={`min-h-[36px] px-3 py-1.5 rounded-lg text-[11px] whitespace-nowrap transition-all cursor-pointer ${
-              timeFilter === t.id
-                ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 font-semibold shadow-xs'
-                : 'bg-paper-100 dark:bg-night-800 text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text border border-paper-border/60 dark:border-night-border'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      {/* 5-Option Time Filter Selector */}
+      <div
+        role="radiogroup"
+        aria-label="Time window filter"
+        className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none"
+      >
+        <Clock className="w-3.5 h-3.5 text-forest-700 dark:text-lime-400 flex-shrink-0 mr-1" aria-hidden="true" />
+        {timeOptions.map((t) => {
+          const isSelected = timeFilter === t.id;
+          return (
+            <button
+              key={t.id}
+              role="radio"
+              aria-checked={isSelected}
+              type="button"
+              onClick={() => onChangeTimeFilter(t.id)}
+              className={`relative min-h-[38px] px-3 py-1.5 rounded-lg text-[11px] whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-1.5 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
+                isSelected
+                  ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep font-bold border-2 border-forest dark:border-lime-signal shadow-sm'
+                  : 'bg-paper-100 dark:bg-night-800 text-graphite-secondary dark:text-night-secondary hover:text-graphite dark:hover:text-night-text border border-paper-border dark:border-night-border hover:border-forest/50 font-medium'
+              }`}
+            >
+              {/* Visible Selection Dot */}
+              <span
+                className={`w-1.5 h-1.5 rounded-full transition-transform ${
+                  isSelected
+                    ? 'bg-lime-signal dark:bg-forest scale-100'
+                    : 'bg-stone-300 dark:bg-night-border scale-75'
+                }`}
+                aria-hidden="true"
+              />
+              <span>{t.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Source Dropdown & Telemetry Count */}

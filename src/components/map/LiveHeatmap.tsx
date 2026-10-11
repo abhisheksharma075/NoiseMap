@@ -199,21 +199,49 @@ export const LiveHeatmap: React.FC<LiveHeatmapProps> = ({
       centerOnUserLocation(false);
 
       // Invalidate Leaflet canvas size to ensure crisp rendering after layout paint
-      setTimeout(() => {
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.invalidateSize();
-        }
-      }, 250);
-    }
+      const invalidateTimer1 = setTimeout(() => {
+        mapInstanceRef.current?.invalidateSize();
+      }, 50);
+      const invalidateTimer2 = setTimeout(() => {
+        mapInstanceRef.current?.invalidateSize();
+      }, 200);
+      const invalidateTimer3 = setTimeout(() => {
+        mapInstanceRef.current?.invalidateSize();
+      }, 500);
 
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-        userMarkerRef.current = null;
-        hasAutoCenteredRef.current = false;
+      // Mobile viewport and orientation change listener
+      const handleResize = () => {
+        mapInstanceRef.current?.invalidateSize();
+      };
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('orientationchange', handleResize);
+
+      // ResizeObserver to automatically track container dimension changes
+      let resizeObserver: ResizeObserver | null = null;
+      if (typeof ResizeObserver !== 'undefined' && mapContainerRef.current) {
+        resizeObserver = new ResizeObserver(() => {
+          mapInstanceRef.current?.invalidateSize();
+        });
+        resizeObserver.observe(mapContainerRef.current);
       }
-    };
+
+      return () => {
+        clearTimeout(invalidateTimer1);
+        clearTimeout(invalidateTimer2);
+        clearTimeout(invalidateTimer3);
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('orientationchange', handleResize);
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+        }
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+          userMarkerRef.current = null;
+          hasAutoCenteredRef.current = false;
+        }
+      };
+    }
   }, [attachTileLayer, centerOnUserLocation, updateLiveLocationMarker]);
 
   // Sync readings and verified incidents onto map canvas
@@ -288,7 +316,7 @@ export const LiveHeatmap: React.FC<LiveHeatmapProps> = ({
   };
 
   return (
-    <div className={`relative w-full h-[520px] rounded-xl overflow-hidden border border-paper-border dark:border-night-border shadow-md ${className}`}>
+    <div className={`relative w-full h-[440px] sm:h-[520px] max-h-[75vh] rounded-xl overflow-hidden border border-paper-border dark:border-night-border shadow-md ${className}`}>
       {/* Map canvas container */}
       <div ref={mapContainerRef} className="w-full h-full z-0 bg-paper-200 dark:bg-[#121714]" />
 

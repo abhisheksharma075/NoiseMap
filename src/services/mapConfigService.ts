@@ -4,7 +4,7 @@
 // 2. OpenStreetMap Standard - Standard OpenStreetMap raster tiles with dark styling filter
 // 3. CARTO Dark Matter - Zero-key required, high availability, dark theme
 
-export type MapTileProvider = 'stadia_dark' | 'osm_dark' | 'carto_dark';
+export type MapTileProvider = 'carto_dark' | 'stadia_dark' | 'osm_dark';
 
 export interface TileLayerConfig {
   provider: MapTileProvider;
@@ -19,9 +19,19 @@ export interface TileLayerConfig {
 }
 
 export class MapConfigService {
-  private static readonly DEFAULT_PROVIDER: MapTileProvider = 'stadia_dark';
+  // CARTO Dark Matter is the zero-key, high-availability default for mobile & production
+  private static readonly DEFAULT_PROVIDER: MapTileProvider = 'carto_dark';
   private static readonly PROVIDER_STORAGE_KEY = 'noisemap_custom_map_provider';
   private static readonly KEY_STORAGE_PREFIX = 'noisemap_map_key_';
+
+  /**
+   * Helper to check if current environment is localhost
+   */
+  public static isLocalhost(): boolean {
+    if (typeof window === 'undefined') return true;
+    const hostname = window.location.hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+  }
 
   /**
    * Retrieves the API key for a specific provider.
@@ -51,16 +61,25 @@ export class MapConfigService {
 
   /**
    * Gets the active map provider.
-   * Defaults to 'stadia_dark' for reliability.
+   * Defaults to 'carto_dark' for 100% mobile and production availability.
+   * If 'stadia_dark' was saved but no key exists and origin is not localhost,
+   * falls back safely to 'carto_dark' to prevent 401 tile rejection.
    */
   public static getMapProvider(): MapTileProvider {
     const saved = localStorage.getItem(this.PROVIDER_STORAGE_KEY);
-    if (saved && ['stadia_dark', 'osm_dark', 'carto_dark'].includes(saved)) {
+    if (saved && ['carto_dark', 'stadia_dark', 'osm_dark'].includes(saved)) {
+      if (saved === 'stadia_dark') {
+        const hasKey = !!this.getApiKeyForProvider('stadia_dark');
+        if (!hasKey && !this.isLocalhost()) {
+          // On mobile or non-localhost without key, Stadia returns 401; fallback to CARTO
+          return 'carto_dark';
+        }
+      }
       return saved as MapTileProvider;
     }
 
     const envProvider = import.meta.env.VITE_MAP_PROVIDER;
-    if (envProvider && ['stadia_dark', 'osm_dark', 'carto_dark'].includes(envProvider)) {
+    if (envProvider && ['carto_dark', 'stadia_dark', 'osm_dark'].includes(envProvider)) {
       return envProvider as MapTileProvider;
     }
 

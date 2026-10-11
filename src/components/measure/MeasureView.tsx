@@ -4,6 +4,7 @@ import { TactileButton } from '../common/TactileButton';
 import { CircularNoiseGauge } from './CircularNoiseGauge';
 import { LiveWaveformVisualizer } from './LiveWaveformVisualizer';
 import { SourceTaggerModal } from './SourceTaggerModal';
+import { FieldGuideAvatar } from '../common/FieldGuideAvatar';
 import { useAudioCapture } from '../../hooks/useAudioCapture';
 import { NoiseSourceType, NoiseZoneType, NoiseReading } from '../../types';
 import { Mic, Square, Shield, Info, CheckCircle2, Map } from 'lucide-react';
@@ -209,6 +210,19 @@ export const MeasureView: React.FC<MeasureViewProps> = ({
             </TactileButton>
           )}
         </div>
+
+        {/* The Field Guide Companion reacting to sampling state */}
+        <FieldGuideAvatar
+          mood={
+            isSampling
+              ? 'listening'
+              : submissionSuccess
+              ? 'submitted'
+              : avgDb > 75
+              ? 'warning'
+              : 'idle'
+          }
+        />
 
         {/* Scientific Honesty & Mathematical Privacy Disclaimer */}
         <div className="p-3.5 bg-paper dark:bg-night-bg border border-paper-border dark:border-night-border rounded-xl font-mono text-[11px] text-graphite-secondary dark:text-night-secondary space-y-1">

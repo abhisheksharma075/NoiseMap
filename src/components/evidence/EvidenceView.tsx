@@ -83,25 +83,46 @@ export const EvidenceView: React.FC<EvidenceViewProps> = ({ incidents, readings 
             SELECT ACTIVE VIOLATION INCIDENT:
           </span>
 
-          <div className="space-y-2">
+          <div
+            role="radiogroup"
+            aria-label="Active violation incident selection"
+            className="space-y-2"
+          >
             {activeIncidents.length > 0 ? (
               activeIncidents.map((inc) => {
                 const isSelected = selectedIncident?.id === inc.id;
                 return (
                   <button
                     key={inc.id}
+                    role="radio"
+                    aria-checked={isSelected}
+                    type="button"
                     onClick={() => setSelectedIncident(inc)}
-                    className={`w-full text-left p-3 min-h-[52px] rounded-lg border transition-all cursor-pointer ${
+                    className={`w-full text-left p-3 min-h-[56px] rounded-xl border transition-all duration-150 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
                       isSelected
-                        ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 shadow-sm'
-                        : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-800 dark:text-night-text hover:border-forest-600 dark:hover:border-lime-400'
+                        ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep border-2 border-forest dark:border-lime-signal shadow-sm'
+                        : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-800 dark:text-night-text hover:border-forest/60 dark:hover:border-lime-400/60'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold truncate">{inc.location_name}</span>
-                      <span className={`font-bold font-serif ${isSelected ? 'text-paper-50 dark:text-forest-950' : 'text-terracotta-600 dark:text-terracotta-400'}`}>{inc.avg_db} dB</span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 ${
+                            isSelected
+                              ? 'bg-lime-signal text-forest-deep dark:bg-forest dark:text-lime-signal font-bold'
+                              : 'border border-paper-border dark:border-night-border text-transparent'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          ✓
+                        </span>
+                        <span className="font-bold truncate">{inc.location_name}</span>
+                      </div>
+                      <span className={`font-bold font-mono ${isSelected ? 'text-lime-signal dark:text-forest-deep' : 'text-terracotta-600 dark:text-terracotta-400'}`}>
+                        {inc.avg_db} dB
+                      </span>
                     </div>
-                    <div className={`flex justify-between text-[11px] mt-1 ${isSelected ? 'text-paper-200 dark:text-forest-800' : 'text-stone-500 dark:text-night-muted'}`}>
+                    <div className={`flex justify-between text-[11px] mt-1.5 pl-5.5 ${isSelected ? 'text-paper-100/90 dark:text-forest-deep/80' : 'text-stone-500 dark:text-night-muted'}`}>
                       <span>Sector {inc.grid_id}</span>
                       <span>{inc.evidence_score.toFixed(0)}% Conf.</span>
                     </div>

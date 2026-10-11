@@ -41,35 +41,48 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
         </div>
 
         {/* Tab Selector */}
-        <div className="flex items-center gap-1.5 p-1 bg-paper-100 dark:bg-night-900 rounded-lg border border-paper-border dark:border-night-border text-xs">
+        <div
+          role="tablist"
+          aria-label="Incident status filters"
+          className="flex items-center gap-1.5 p-1 bg-paper-100 dark:bg-night-900 rounded-xl border border-paper-border dark:border-night-border text-xs"
+        >
           <button
+            role="tab"
+            aria-selected={filterTab === 'active'}
+            type="button"
             onClick={() => setFilterTab('active')}
-            className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+            className={`min-h-[38px] flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
               filterTab === 'active'
-                ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 font-bold shadow-xs'
-                : 'text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text'
+                ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep font-bold border-2 border-forest dark:border-lime-signal shadow-xs'
+                : 'text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text border border-transparent'
             }`}
           >
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Active ({activeIncidents.length})</span>
           </button>
           <button
+            role="tab"
+            aria-selected={filterTab === 'hotspots'}
+            type="button"
             onClick={() => setFilterTab('hotspots')}
-            className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+            className={`min-h-[38px] flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
               filterTab === 'hotspots'
-                ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 font-bold shadow-xs'
-                : 'text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text'
+                ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep font-bold border-2 border-forest dark:border-lime-signal shadow-xs'
+                : 'text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text border border-transparent'
             }`}
           >
             <Flame className="w-3.5 h-3.5" />
             <span>Hotspots</span>
           </button>
           <button
+            role="tab"
+            aria-selected={filterTab === 'resolved'}
+            type="button"
             onClick={() => setFilterTab('resolved')}
-            className={`min-h-[36px] flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+            className={`min-h-[38px] flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
               filterTab === 'resolved'
-                ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 font-bold shadow-xs'
-                : 'text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text'
+                ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep font-bold border-2 border-forest dark:border-lime-signal shadow-xs'
+                : 'text-stone-600 dark:text-night-muted hover:text-graphite-900 dark:hover:text-night-text border border-transparent'
             }`}
           >
             <CheckCircle className="w-3.5 h-3.5" />

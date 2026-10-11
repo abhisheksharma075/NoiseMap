@@ -1,5 +1,6 @@
 import React from 'react';
 import { TactileButton } from '../common/TactileButton';
+import { FieldGuideAvatar } from '../common/FieldGuideAvatar';
 import {
   Map,
   Mic,
@@ -94,6 +95,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <span>Statutory CPCB Citations</span>
             </div>
           </div>
+
+          {/* The Field Guide Companion */}
+          <FieldGuideAvatar mood="idle" />
 
           {/* Live Field Telemetry Ticker */}
           <div className="p-3 bg-paper-soft dark:bg-night-surface border border-paper-border dark:border-night-border rounded-xl font-mono text-xs w-full max-w-lg flex items-center justify-between gap-3 shadow-field">

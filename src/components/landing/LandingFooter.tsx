@@ -1,5 +1,6 @@
 import React from 'react';
-import { Radio, ShieldCheck, ArrowUp } from 'lucide-react';
+import { ShieldCheck, ArrowUp } from 'lucide-react';
+import { NoiseMapLogo } from '../common/NoiseMapLogo';
 import { TabType } from '../layout/NavigationBar';
 
 interface LandingFooterProps {
@@ -17,17 +18,7 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({ onNavigateTab }) =
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           {/* Brand Column */}
           <div className="md:col-span-5 space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-forest text-lime-signal flex items-center justify-center">
-                <Radio className="w-4 h-4 text-lime-signal" />
-              </div>
-              <span className="font-bold text-graphite dark:text-night-text tracking-tight font-sans text-base">
-                NOISE<span className="text-forest dark:text-lime-signal">MAP</span>
-              </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-paper dark:bg-night-bg border border-paper-border dark:border-night-border text-graphite-secondary dark:text-night-secondary font-bold">
-                PWA v1.0
-              </span>
-            </div>
+            <NoiseMapLogo size="md" />
 
             <p className="text-xs text-graphite-secondary dark:text-night-secondary font-sans leading-relaxed max-w-sm">
               Privacy-first crowdsourced acoustic intelligence. Measuring, mapping, and converting everyday urban sound into actionable civic evidence.

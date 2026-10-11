@@ -85,54 +85,70 @@ export const MapKeyConfigModal: React.FC<MapKeyConfigModalProps> = ({
           {/* Provider Select Grid */}
           <div className="space-y-1.5">
             <label className="text-graphite-800 dark:text-night-text font-semibold block">01. SELECT MAP BASEMAP PROVIDER:</label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div
+              role="radiogroup"
+              aria-label="Map tile provider"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-2"
+            >
               <button
                 type="button"
+                role="radio"
+                aria-checked={selectedProvider === 'carto_dark'}
+                onClick={() => handleProviderSelect('carto_dark')}
+                className={`relative p-2.5 min-h-[58px] rounded-xl border text-left transition-all duration-150 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
+                  selectedProvider === 'carto_dark'
+                    ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep border-2 border-forest dark:border-lime-signal shadow-sm'
+                    : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest/60 dark:hover:border-lime-400/60'
+                }`}
+              >
+                <div className="font-bold flex items-center justify-between">
+                  <span>CARTO Dark</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded border ${selectedProvider === 'carto_dark' ? 'bg-forest-800 text-paper-50 dark:bg-lime-500 dark:text-forest-950 border-transparent font-bold' : 'bg-paper-200 dark:bg-night-900 border-paper-border text-forest-700 dark:text-lime-400 font-bold'}`}>
+                    REC ✓
+                  </span>
+                </div>
+                <div className={`text-[10px] mt-0.5 ${selectedProvider === 'carto_dark' ? 'text-paper-100/90 dark:text-forest-deep/80' : 'text-stone-500 dark:text-night-muted'}`}>
+                  Zero Key · Mobile & Web
+                </div>
+              </button>
+
+              <button
+                type="button"
+                role="radio"
+                aria-checked={selectedProvider === 'osm_dark'}
+                onClick={() => handleProviderSelect('osm_dark')}
+                className={`relative p-2.5 min-h-[58px] rounded-xl border text-left transition-all duration-150 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
+                  selectedProvider === 'osm_dark'
+                    ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep border-2 border-forest dark:border-lime-signal shadow-sm'
+                    : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest/60 dark:hover:border-lime-400/60'
+                }`}
+              >
+                <div className="font-bold flex items-center justify-between">
+                  <span>OSM Standard</span>
+                  {selectedProvider === 'osm_dark' && <span className="text-[10px] font-bold">✓</span>}
+                </div>
+                <div className={`text-[10px] mt-0.5 ${selectedProvider === 'osm_dark' ? 'text-paper-100/90 dark:text-forest-deep/80' : 'text-stone-500 dark:text-night-muted'}`}>
+                  OpenStreetMap · Global
+                </div>
+              </button>
+
+              <button
+                type="button"
+                role="radio"
+                aria-checked={selectedProvider === 'stadia_dark'}
                 onClick={() => handleProviderSelect('stadia_dark')}
-                className={`p-2.5 min-h-[56px] rounded-lg border text-left transition-all cursor-pointer ${
+                className={`relative p-2.5 min-h-[58px] rounded-xl border text-left transition-all duration-150 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
                   selectedProvider === 'stadia_dark'
-                    ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 shadow-sm'
-                    : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400'
+                    ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep border-2 border-forest dark:border-lime-signal shadow-sm'
+                    : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest/60 dark:hover:border-lime-400/60'
                 }`}
               >
                 <div className="font-bold flex items-center justify-between">
                   <span>Stadia Alidade</span>
-                  <span className={`text-[9px] px-1.5 py-0.5 rounded border ${selectedProvider === 'stadia_dark' ? 'bg-forest-800 text-paper-50 dark:bg-lime-500 dark:text-forest-950 border-transparent' : 'bg-paper-200 dark:bg-night-900 border-paper-border text-forest-700 dark:text-lime-400'}`}>
-                    REC
-                  </span>
+                  {selectedProvider === 'stadia_dark' && <span className="text-[10px] font-bold">✓</span>}
                 </div>
-                <div className={`text-[10px] mt-0.5 ${selectedProvider === 'stadia_dark' ? 'text-paper-200 dark:text-forest-800' : 'text-stone-500 dark:text-night-muted'}`}>
-                  High-Res Dark Tiles
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleProviderSelect('osm_dark')}
-                className={`p-2.5 min-h-[56px] rounded-lg border text-left transition-all cursor-pointer ${
-                  selectedProvider === 'osm_dark'
-                    ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 shadow-sm'
-                    : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400'
-                }`}
-              >
-                <div className="font-bold">OSM Standard</div>
-                <div className={`text-[10px] mt-0.5 ${selectedProvider === 'osm_dark' ? 'text-paper-200 dark:text-forest-800' : 'text-stone-500 dark:text-night-muted'}`}>
-                  Zero Key · Open Data
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleProviderSelect('carto_dark')}
-                className={`p-2.5 min-h-[56px] rounded-lg border text-left transition-all cursor-pointer ${
-                  selectedProvider === 'carto_dark'
-                    ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 shadow-sm'
-                    : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400'
-                }`}
-              >
-                <div className="font-bold">CARTO Dark</div>
-                <div className={`text-[10px] mt-0.5 ${selectedProvider === 'carto_dark' ? 'text-paper-200 dark:text-forest-800' : 'text-stone-500 dark:text-night-muted'}`}>
-                  Zero Key · High Availability
+                <div className={`text-[10px] mt-0.5 ${selectedProvider === 'stadia_dark' ? 'text-paper-100/90 dark:text-forest-deep/80' : 'text-stone-500 dark:text-night-muted'}`}>
+                  Custom Key / Localhost
                 </div>
               </button>
             </div>

@@ -141,26 +141,46 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
                 <span>01. IDENTIFY ACOUSTIC SOURCE:</span>
                 <span className="text-[10px] text-stone-500 dark:text-night-muted font-normal uppercase">Single Selection</span>
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div
+                role="radiogroup"
+                aria-label="Acoustic noise source selection"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+              >
                 {sources.map((s) => {
                   const isSelected = selectedSource === s.id;
                   return (
                     <button
                       key={s.id}
                       type="button"
+                      role="radio"
+                      aria-checked={isSelected}
                       disabled={isSubmitting}
                       onClick={() => {
                         setSelectedSource(s.id);
                         setValidationError(null);
                       }}
-                      className={`flex items-center gap-2.5 p-2.5 min-h-[44px] rounded-lg border text-left font-mono text-xs transition-all cursor-pointer ${
+                      className={`relative flex items-center justify-between p-2.5 min-h-[48px] rounded-xl border text-left font-mono text-xs transition-all duration-150 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
                         isSelected
-                          ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 font-semibold shadow-sm'
-                          : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400/60'
+                          ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep border-2 border-forest dark:border-lime-signal font-bold shadow-sm'
+                          : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest/60 dark:hover:border-lime-400/60'
                       }`}
                     >
-                      <span className="flex-shrink-0">{s.icon}</span>
-                      <span className="truncate">{s.label}</span>
+                      <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                        <span className={`flex-shrink-0 ${isSelected ? 'text-lime-signal dark:text-forest-deep' : ''}`}>
+                          {s.icon}
+                        </span>
+                        <span className="truncate">{s.label}</span>
+                      </div>
+                      <span
+                        className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-transform ${
+                          isSelected
+                            ? 'bg-lime-signal text-forest-deep dark:bg-forest dark:text-lime-signal scale-100'
+                            : 'border border-paper-border dark:border-night-border text-transparent scale-75'
+                        }`}
+                        aria-hidden="true"
+                      >
+                        ✓
+                      </span>
                     </button>
                   );
                 })}
@@ -173,28 +193,46 @@ export const SourceTaggerModal: React.FC<SourceTaggerModalProps> = ({
                 <span>02. AREA ZONE CLASSIFICATION (CPCB LIMITS):</span>
                 <span className="text-[10px] text-stone-500 dark:text-night-muted font-normal uppercase">Statutory Rule</span>
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div
+                role="radiogroup"
+                aria-label="CPCB area zone classification"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+              >
                 {zones.map((z) => {
                   const isSelected = selectedZone === z.id;
                   return (
                     <button
                       key={z.id}
                       type="button"
+                      role="radio"
+                      aria-checked={isSelected}
                       disabled={isSubmitting}
                       onClick={() => {
                         setSelectedZone(z.id);
                         setValidationError(null);
                       }}
-                      className={`flex flex-col p-2.5 min-h-[48px] rounded-lg border text-left font-mono text-xs transition-all cursor-pointer ${
+                      className={`relative flex flex-col justify-between p-2.5 min-h-[56px] rounded-xl border text-left font-mono text-xs transition-all duration-150 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-signal ${
                         isSelected
-                          ? 'bg-forest-900 text-paper-50 dark:bg-lime-400 dark:text-forest-950 border-forest-900 dark:border-lime-400 shadow-sm'
-                          : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest-600 dark:hover:border-lime-400/60'
+                          ? 'bg-forest text-paper dark:bg-lime-signal dark:text-forest-deep border-2 border-forest dark:border-lime-signal shadow-sm font-semibold'
+                          : 'bg-paper-50 dark:bg-night-800 border-paper-border dark:border-night-border text-graphite-700 dark:text-night-muted hover:border-forest/60 dark:hover:border-lime-400/60'
                       }`}
                     >
-                      <span className={`font-semibold ${isSelected ? 'text-paper-50 dark:text-forest-950' : 'text-graphite-900 dark:text-night-text'}`}>
-                        {z.label}
-                      </span>
-                      <span className={`text-[10px] mt-0.5 ${isSelected ? 'text-paper-200 dark:text-forest-800' : 'text-stone-500 dark:text-night-muted'}`}>
+                      <div className="flex items-center justify-between w-full">
+                        <span className={`font-semibold ${isSelected ? 'text-paper dark:text-forest-deep' : 'text-graphite-900 dark:text-night-text'}`}>
+                          {z.label}
+                        </span>
+                        <span
+                          className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[10px] flex-shrink-0 ${
+                            isSelected
+                              ? 'bg-lime-signal text-forest-deep dark:bg-forest dark:text-lime-signal font-bold'
+                              : 'border border-paper-border dark:border-night-border text-transparent'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          ✓
+                        </span>
+                      </div>
+                      <span className={`text-[10px] mt-1 ${isSelected ? 'text-paper-100/90 dark:text-forest-deep/80' : 'text-stone-500 dark:text-night-muted'}`}>
                         Day: {z.dayLimit} · Night: {z.nightLimit}
                       </span>
                     </button>
