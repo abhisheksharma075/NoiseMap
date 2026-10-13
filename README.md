@@ -4,168 +4,271 @@
 
 <br/><br/>
 
-### **Privacy-First Civic Acoustic Intelligence & Distributed Environmental Sensor Grid**
+# 🌐 NoiseMap: Civic Acoustic Intelligence Grid
 
+### **Privacy-Preserving Distributed Environmental Noise Monitoring & Statutory CPCB Compliance Engine**
+
+<br/>
+
+[![Live Production Demo](https://img.shields.io/badge/LIVE%20DEMO-noisemap--beta.vercel.app-D5E66B?style=for-the-badge&logo=vercel&logoColor=black)](https://noisemap-beta.vercel.app/)
 [![Vite 5.4](https://img.shields.io/badge/Vite-5.4-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![React 18.3](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript 5.7](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![TailwindCSS 3.4](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Leaflet 1.9](https://img.shields.io/badge/Leaflet-1.9-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
-[![pdf-lib](https://img.shields.io/badge/pdf--lib-1.17-EC1C24?style=for-the-badge)](https://pdf-lib.js.org/)
-[![PWA Ready](https://img.shields.io/badge/PWA-Installable-D5E66B?style=for-the-badge&logo=pwa&logoColor=black)](https://web.dev/progressive-web-apps/)
+[![PWA Installable](https://img.shields.io/badge/PWA-Installable-D5E66B?style=for-the-badge&logo=pwa&logoColor=black)](https://web.dev/progressive-web-apps/)
 [![License MIT](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](LICENSE)
 
 <br/>
 
+**🔗 Official Live Application:**  
+### **👉 [https://noisemap-beta.vercel.app/](https://noisemap-beta.vercel.app/) 👈**
+
+*Instant PWA installation supported on iOS, Android, macOS, Windows, and Linux.*
+
+<br/>
+
 ```
-╔══════════════════════════════════════════════════════════════════════════════════════════╗
-║  [MEASURE] ──▶ [MAP] ──▶ [VERIFY] ──▶ [ALERT] ──▶ [ACT]                                  ║
-║   1-Tap Audio   Live Radar  3+ Consensus  Geo-Push   CPCB Legal Dossier (Rule 5 & 7)     ║
-╚══════════════════════════════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
+║   [1. MEASURE]    ──▶    [2. MAP]    ──▶    [3. VERIFY]    ──▶    [4. ALERT]    ──▶    [5. ACT]     ║
+║   1-Tap DSP Audio     Realtime Radar      3+ Consensus        Geo-Fenced Alerts   CPCB Dossier    ║
+║   True Leq (dB SPL)   100m Privacy Grid   Anti-Spoof Hash     Residential/School  Rule 5 & 7 PDF  ║
+╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
 ```
 
 <p align="center">
-  <a href="#-overview">Overview</a> •
-  <a href="#-visual-identity--high-classic-design">Visual Identity</a> •
+  <a href="#-executive-summary">Executive Summary</a> •
+  <a href="#-core-capabilities">Core Capabilities</a> •
+  <a href="#-system-architecture">Architecture</a> •
   <a href="#-interactive-acoustic-companion">Acoustic Avatar</a> •
-  <a href="#-musical-ui-tap-audio-system">Tap Audio System</a> •
-  <a href="#-closed-loop-civic-pipeline">Civic Pipeline</a> •
-  <a href="#-statutory-cpcb-pdf-engine">CPCB PDF Engine</a> •
+  <a href="#-cpcb-statutory-evidence-engine">CPCB PDF Engine</a> •
   <a href="#-privacy-first-engineering">Privacy Architecture</a> •
+  <a href="#-tactile-sound-feedback">Audio System</a> •
   <a href="#-technology-stack">Tech Stack</a> •
-  <a href="#-getting-started">Getting Started</a>
+  <a href="#-getting-started">Getting Started</a> •
+  <a href="#-verification--testing">Test Suite</a>
 </p>
 
 </div>
 
 ---
 
-## ⚡ Overview
+## ⚡ Executive Summary
 
-**NoiseMap** is a privacy-first Progressive Web App (PWA) that converts everyday smartphones into an anonymous, distributed environmental acoustic sensor grid. It enables citizens to measure sound pressure levels ($L_{eq}$), detect statutory noise violations, visualize real-time urban heatmaps in ~100m privacy sectors, and generate legally defensible Central Pollution Control Board (**CPCB 2000 Rules**) grievance dossiers in $<400\,\text{ms}$.
+Urban noise pollution poses severe risks to cardiovascular health, sleep quality, and mental well-being, yet civic enforcement remains paralyzed by expensive proprietary decibel meters and bureaucratic complaint procedures. 
+
+**NoiseMap** is a modern, privacy-first Progressive Web App (PWA) transforming everyday smartphones into an interconnected, autonomous civic acoustic sensor grid. It allows citizens to:
+1. Conduct precision 10-second sound pressure measurements ($L_{eq}$) via browser-native Web Audio DSP.
+2. View crowd-sourced noise heatmaps snapped to privacy-preserving $\sim 100\,\text{m}$ geodetic grids.
+3. Automatically cluster synchronous community reports into verified multi-witness incidents (3+ independent devices within a 15-minute window).
+4. Export legally compliant Central Pollution Control Board (**CPCB The Noise Pollution Rules, 2000**) grievance dossiers directly to PDF in $< 400\,\text{ms}$.
+
+---
+
+## 🚀 Core Capabilities
+
+| Feature | Description | Technical Implementation |
+|:---|:---|:---|
+| 🎙️ **Micro-Transducer Sampling** | 1-Tap 10-second acoustic recording with continuous $L_{eq}$ computation. | Web Audio API `AnalyserNode`, Float32Array RMS processing, logarithmic dB SPL calibration. |
+| 🛡️ **Zero-Raw Audio Retention** | Audio buffers reside solely in transient RAM and are discarded immediately. | Hardware streams terminated; zero binary audio leaves the device. |
+| 📍 **Geodetic Privacy Snapping** | Locations are mathematically quantized to 3 decimal places ($\sim 100\,\text{m}$ grid). | $\text{coord}_{\text{snapped}} = \lfloor \text{coord} \times 1000 \rceil / 1000$, masking residential addresses. |
+| 🤝 **Multi-Contributor Consensus** | Solitary reports remain unverified until corroborated by 3+ devices. | Spatio-temporal cluster engine (100m radius, 15-minute sliding window). |
+| 📄 **Statutory CPCB PDF Generator** | 1-click legal evidence generation citing Rules 5 & 7 of the Noise Pollution Rules 2000. | Client-side vector document compilation using `pdf-lib` without server roundtrips. |
+| 🤖 **Acoustic Avatar Companion** | Real-time reactive visual companion reflecting ambient decibels and sampling states. | Pure vector SVG animation engine synchronized to measurement state machines. |
+| 🎵 **Tactile Sound Feedback** | High-precision synthesized mallet/marimba taps and chord harmonics. | Browser Web Audio oscillator synthesis with mic-active silence safeguards. |
+| 📱 **Zero-Friction Offline PWA** | Installable to homescreens with zero login, zero phone numbers, and full offline caching. | Vite PWA plugin, ServiceWorker cache, ephemeral UUID cryptographic credentials. |
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client ["Client Browser / Mobile PWA"]
+        A["Citizen Acoustic Sensor\n(Web Audio AnalyserNode)"] -->|Transient PCM Buffer| B["DSP RMS Engine\nCompute Leq dB SPL"]
+        B -->|Mute Sound FX| C["10s Live Sampling HUD\nRealtime Decibel Arc"]
+        B -->|GPS Quantization| D["100m Privacy Snapper\nLat/Lng quantized to 3 decimals"]
+    end
+
+    subgraph Consensus ["Local & Cloud Consensus Pipeline"]
+        D -->|Ephemeral Contribution| E["Spatio-Temporal Cluster Filter"]
+        E -->|Threshold < 3 Devices| F["Pending Signal (Unverified)"]
+        E -->|Threshold >= 3 Devices in 15m| G["ACTIVE Verified Civic Incident"]
+    end
+
+    subgraph Action ["Statutory Enforcement & Visualization"]
+        G --> H["Leaflet Carto-Dark Radar\nHeatmap & Sector Markers"]
+        G --> I["Complaint PDF Engine (pdf-lib)\nCPCB 2000 Statutory Dossier"]
+        F --> J["Individual Sample PDF Export\nImmediate Citizen Record"]
+    end
+
+    classDef darkForest fill:#141E17,stroke:#D5E66B,stroke-width:1.5px,color:#FAF8F2;
+    classDef limeAccent fill:#1E2F23,stroke:#D5E66B,stroke-width:2px,color:#D5E66B;
+    class A,B,C,D,E,F,H,I,J darkForest;
+    class G limeAccent;
+```
 
 ---
 
 ## 🎨 Visual Identity & High-Classic Design
 
-NoiseMap utilizes a deliberate, restrained, high-classic environmental palette inspired by precision field instruments and acoustic laboratories:
+NoiseMap adopts a purposeful, high-classic environmental palette inspired by precision laboratory instruments and field acoustic telemetry:
 
-* **Deep Forest (`#141E17` / `#1E2F23`):** Primary structural surface and brand grounding.
-* **Warm Paper (`#FAF8F2` / `#F4F1E8`):** Readable high-contrast typography and cards.
-* **Signal Lime (`#D5E66B` / `#E2F075`):** Selected emphasis, live sensor telemetry, and calibrated decibel arcs.
-* **Muted Olive (`#798E69`):** Secondary resonance markers and intermediate operational bands.
-* **Terracotta Amber (`#C46E50` / `#F59E0B`):** Exceedance alerts and statutory violation warnings.
-
-### Redesigned Brand Icon System
-- **Vector Symbol:** Concentric acoustic resonance arcs with topographic geodetic reticles, acoustic wave crests, and a central bio-acoustic micro-transducer core.
-- **PWA Icons:** Packaged with full standalone maskable support (`pwa-192x192.png`, `pwa-512x512.png`, `apple-touch-icon.png`, `radar-icon.svg`, and sharp browser `favicon.svg`).
+* **Deep Obsidian Forest (`#141E17` / `#1E2F23`):** Primary structural surface and brand foundation.
+* **Warm Paper (`#FAF8F2` / `#F4F1E8`):** Clean, high-legibility card surfaces and typography.
+* **Signal Lime (`#D5E66B` / `#E2F075`):** Selected focus, live decibel telemetry, and calibrated gauge sweeps.
+* **Muted Olive (`#798E69`):** Operational baseline indicators and intermediate frequency tags.
+* **Terracotta Amber (`#C46E50` / `#F59E0B`):** Threshold breaches and statutory violation flags.
 
 ---
 
-## 🤖 Interactive Acoustic Companion ("The NoiseMap Guardian")
+## 🤖 Interactive Acoustic Companion ("NoiseMap Guardian")
 
 Positioned inside the circular Citizen Acoustic Sensor interface, the companion dynamically communicates sensor states:
 
-| State | Trigger / Level | Visual Expression | Telemetry Action |
+| State | Trigger / dB Level | Avatar Expression | Sensor Action |
 |:---|:---|:---|:---|
-| **`IDLE`** | Standby / Ready | Attentive resting smile, sage green headset | Calibrated 240° arc standby; tap to measure |
-| **`LISTENING`** | 10-sec Sampling active | Focused pupils, live acoustic wave mouth, pulsing ripple ring | **Live decibel HUD** continuously updates in real-time |
-| **`LOW`** | Completed $< 50.0\,\text{dB}$ | Gentle smile, smiling curved eyes, Forest Green accent | Prototype demo band: compliant quiet environment |
-| **`MODERATE`** | Completed $50.0\text{--}69.9\,\text{dB}$ | Observant alert eyes, Muted Olive accent | Typical urban ambient baseline |
-| **`HIGH`** | Completed $\ge 70.0\,\text{dB}$ | Alert amber eyes, concerned angled brows, Terracotta warning | Exceeds daytime threshold; prompts legal escalation |
-| **`ERROR`** | Mic denied or zero signal | Neutral straight mouth, warning pupil color | Hardware guidance banner displayed |
-| **`SUBMITTED`** | Consensus grid confirmed | Positive nodding smile, glowing lime halo | Triggers success chime & optional voice confirmation |
+| **`IDLE`** | Ready / Standby | Resting smile, sage green headset | Calibrated 240° arc standby; tap to measure |
+| **`LISTENING`** | 10-sec Sampling active | Focused pupils, live acoustic sound wave mouth, pulsing rings | **Live decibel HUD** continuously updates in real-time |
+| **`LOW`** | Completed $< 50.0\,\text{dB}$ | Gentle smile, curved eyes, Forest Green accents | Compliant quiet ambient environment |
+| **`MODERATE`** | Completed $50.0\text{--}69.9\,\text{dB}$ | Observant alert eyes, Muted Olive accents | Standard urban ambient baseline |
+| **`HIGH`** | Completed $\ge 70.0\,\text{dB}$ | Concerned angled brows, Terracotta alert glow | Exceeds daytime limit; prompts statutory dossier export |
+| **`ERROR`** | Hardware/Mic Denied | Neutral straight mouth, warning pupil shade | Hardware permission banner displayed |
+| **`SUBMITTED`** | Consensus grid confirmed | Joyful nod, lime halo, ascending chime | Triggers success harmonic chime & civic points |
 
 ---
 
-## 🎵 Musical UI Tap Audio System
+## 📄 CPCB Statutory Evidence Engine
 
-NoiseMap integrates a synthesized Web Audio micro-interaction engine delivering pleasant acoustic feedback without heavy audio files or external servers:
+NoiseMap generates court-ready and administrative-ready complaints under **The Noise Pollution (Regulation and Control) Rules, 2000** (*Environment (Protection) Act, 1986*):
 
-1. **Musical Tactile Tap:** Dual-tone acoustic marimba ping ($784\,\text{Hz}$ fundamental G5 + $1174.6\,\text{Hz}$ warm D6 harmonic) on button clicks.
-2. **Selection Harmonic:** Harmonic major interval on tab and filter switches.
-3. **Success Chime:** Ascending major third (C5 to E5) on sample submission.
-4. **Voice Announcements:** Optional spoken confirmation via Web Speech Synthesis.
-5. **Microphone Isolation Safeguard:** **All audio playback is strictly muted before microphone activation** and stays suppressed throughout the entire 10-second sampling window to prevent speaker feedback from contaminating acoustic readings.
+- **Rule 5 Violation:** Restrictions on the use of loudspeakers, public address systems, and sound-producing instruments.
+- **Rule 7 Redressal:** Right of aggrieved citizens to report violations to designated District Magistrates, Police Commissioners, or SPCB Officers.
+- **Instant Client-Side Vector Compilation:** The `ComplaintPdfService` compiles PDFs entirely inside the browser using `pdf-lib` in $< 400\,\text{ms}$, guaranteeing complete privacy without transmitting documents over network APIs.
+- **Dual Export Pathways:**
+  1. **Verified Incidents:** Complete multi-witness dossiers with confidence ratings, device counts, and statutory citations.
+  2. **Raw Citizen Readings:** Instant 1-click sample export for individual contributors prior to multi-party consensus.
 
 ---
 
-## 🔁 Closed-Loop Civic Pipeline
+## 🔒 Privacy-First Engineering: Math Over Trust
 
-```mermaid
-flowchart LR
-    A["1. MEASURE\n(1-Tap Web Audio DSP)\nRMS Decibels / True Leq"] --> B["2. MAP\n(Live Radar Heatmap)\nZero-Key Carto Dark"]
-    B --> C["3. VERIFY\n(Consensus Engine)\n3+ Users / 15m / 100m"]
-    C --> D["4. ALERT\n(Geo-Fenced Alerts)\nHome, School, Hospital"]
-    D --> E["5. ACT\n(Vector PDF Engine)\nRule 5 & 7 CPCB Dossier"]
-
-    classDef stage fill:#141E17,stroke:#D5E66B,stroke-width:1.5px,color:#FAF8F2;
-    class A,B,C,D,E stage;
+```
+Raw Ambient Waves ──▶ [Transient RAM Buffer] ──▶ RMS Computation ──▶ [Buffer Destroyed]
+                                                         │
+                                               dB SPL Metric Only
+                                                         │
+                                                         ▼
+GPS Lat/Lng       ──▶ [Math Quantization: 3 Decimals] ──▶ ~100m Privacy Sector
 ```
 
----
-
-## 📄 Statutory CPCB PDF Engine & Quick Export
-
-- **Instant 1-Click Export:** The **Incidents screen** features a prominent Quick Export banner to download the most recent verified violation dossier in 1 tap.
-- **Rule 5 & 7 Compliance:** Automated citation under *The Noise Pollution (Regulation and Control) Rules, 2000* under the *Environment (Protection) Act, 1986*.
-- **Client-Side Generation:** Zero server roundtrip; compiles tamper-evident vector PDFs in $<400\,\text{ms}$ via `pdf-lib`.
-
----
-
-## 🔒 Privacy Architecture: Math Over Trust
-
-1. **Zero Raw Audio Retention:** Audio is processed exclusively in transient RAM. Buffers are discarded immediately after computing RMS amplitude and $L_{eq}$. No audio files are recorded or uploaded.
-2. **~100m Privacy Snapping:** GPS coordinates are mathematically quantized to 3 decimal places on the device:
+1. **Zero Raw Audio Storage:** Ambient sound is converted to Float32 sample frames, analyzed for RMS energy, and **immediately destroyed in memory**. No audio recordings or voice snippets are ever stored or uploaded.
+2. **Mathematical Coordinate Quantization:** Precise GPS coordinates are snapped to a 100m grid on the device:
    $$\text{lat}_{\text{grid}} = \frac{\lfloor \text{lat} \times 1000 \rceil}{1000}, \quad \text{lng}_{\text{grid}} = \frac{\lfloor \text{lng} \times 1000 \rceil}{1000}$$
-3. **Zero-KYC Ephemeral Identity:** No login screens, phone numbers, or emails. Identity is backed by rotating cryptographic UUID tokens.
+3. **Zero-KYC Ephemeral Identity:** No login, Google OAuth, phone numbers, or email requirements. The app generates rotating client-side cryptographic device tokens.
+
+---
+
+## 🎵 Tactile Sound Feedback System
+
+Synthesized in real-time via Web Audio API oscillators:
+* **Tactile Tap:** Dual-tone acoustic marimba tone ($784\,\text{Hz}$ fundamental G5 + $1174.6\,\text{Hz}$ harmonic D6).
+* **Selection Harmonic:** Major interval tone on tab navigation and filter toggles.
+* **Success Chime:** Ascending major third (C5 to E5) on sample submission.
+* **Microphone Safety Lock:** All UI audio synthesis is **strictly muted** before opening the microphone stream, preventing artificial sensor pollution.
 
 ---
 
 ## 🛠️ Technology Stack
 
-* **Frontend:** React 18, TypeScript 5.7, Vite 5.4, Tailwind CSS 3.4
-* **Acoustics & DSP:** Web Audio API (`AnalyserNode`, RMS calculation, $L_{eq}$ continuous energy integration)
-* **Cartography:** Leaflet 1.9, React Leaflet, CARTO Dark Matter basemap (zero-key fallback)
-* **Document Generation:** `pdf-lib` (pure client-side vector compilation)
-* **Persistence & Sync:** Autonomous browser `localStorage` engine with optional Supabase cloud sync
+| Layer | Framework / Library | Purpose |
+|:---|:---|:---|
+| **Core Framework** | React 18.3, TypeScript 5.7 | Type-safe declarative user interface |
+| **Build System** | Vite 5.4 | Ultra-fast HMR and optimized production bundling |
+| **Styling & Design** | Tailwind CSS 3.4 | Bespoke high-classic design system & tokens |
+| **Audio Processing** | Web Audio API (`AnalyserNode`) | In-browser DSP, RMS calculation, $L_{eq}$ metrics |
+| **Cartography** | Leaflet 1.9, React-Leaflet | High-performance interactive radar and heatmap layers |
+| **Tile Provider** | CARTO Dark Matter | High-contrast zero-key map tiles |
+| **PDF Generation** | `pdf-lib` 1.17 | Client-side vector CPCB legal dossier compilation |
+| **Icons & Visuals** | Lucide React, Custom SVG Icons | High-contrast vector interface icons |
+| **State & Storage** | LocalStorage + Optional Supabase | Offline-first sync with autonomous failover |
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ (tested on Node v20/v24)
-- npm or yarn
+- Node.js 18+ (tested on Node v20 / v22 / v24)
+- npm or pnpm or yarn
 
-### Installation
+### 1. Clone & Install
 ```bash
-# Clone the repository
+# Clone the official repository
 git clone https://github.com/abhisheksharma075/NoiseMap.git
+
+# Navigate into the project directory
 cd NoiseMap
 
 # Install dependencies
 npm install
-
-# Start development server
-npm run dev
 ```
 
-### Production Build & Test
+### 2. Development Server
 ```bash
-# Build production bundle
-npm run build
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-# Run automated E2E & DSP test suites
+### 3. Production Build
+```bash
+npm run build
+```
+Generates optimized production assets in the `dist/` directory.
+
+---
+
+## 🧪 Verification & Testing
+
+NoiseMap includes automated test suites covering audio DSP calculations, geodetic grid snapping, multi-contributor consensus algorithms, and PDF generation:
+
+```bash
+# Execute master test runner
 node scripts/test-runner.js
+
+# Individual test suites
 node scripts/test-audio-dsp.js
 node scripts/test-data-flow.js
 ```
 
+### Verification Suite Results:
+```text
+======================================================
+🧪 NOISEMAP E2E AUTOMATED VERIFICATION SUITE
+======================================================
+
+[TEST 1/5] DSP Audio RMS to Decibel Conversion: ✅ PASSED
+[TEST 2/5] 100m Mathematical Privacy Grid Snapping: ✅ PASSED
+[TEST 3/5] Algorithmic Multi-Contributor Consensus (3+ Users): ✅ PASSED
+[TEST 4/5] 5-Factor Mathematical Evidence Confidence Formula: ✅ PASSED
+[TEST 5/5] Client-Side CPCB PDF Document Vector Binary: ✅ PASSED
+
+======================================================
+SUMMARY: 5/5 TEST SUITES PASSED (100% SUCCESS)
+======================================================
+```
+
 ---
+
+## 📄 License & Open-Source Civic Mission
+
+Licensed under the **MIT License**. Built to empower citizens, residential welfare associations (RWAs), and environmental researchers with open, privacy-preserving acoustic intelligence tools.
+
+<br/>
 
 <div align="center">
 
-**Built for cleaner, quieter, healthier cities.**
+**[Explore the Live App](https://noisemap-beta.vercel.app/)** • **[Report an Issue](https://github.com/abhisheksharma075/NoiseMap/issues)** • **[Contribute](https://github.com/abhisheksharma075/NoiseMap/pulls)**
+
+<br/>
+
+*Designed and engineered for quieter, healthier, and legally empowered communities.*
 
 </div>
