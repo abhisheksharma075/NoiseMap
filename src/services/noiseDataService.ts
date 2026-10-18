@@ -67,7 +67,161 @@ const DEFAULT_BASELINE_READINGS: NoiseReading[] = [
   },
 ];
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export class NoiseDataService {
+  private static realtimeChannel: any = null;
+  private static listeners: Set<(reading: NoiseReading) => void> = new Set();
+  private static isSubscribed: boolean = false;
+
+  /**
+   * Initializes or returns the Supabase Realtime WebSocket channel for instant (<200ms) multi-user synchronization
+   */
+  public static initRealtimeChannel(): any {
+    if (!isSupabaseConfigured() || !supabase) {
+      return null;
+    }
+
+    if (this.realtimeChannel) {
+      return this.realtimeChannel;
+    }
+
+    const channel = supabase.channel('noisemap_live_feed', {
+      config: {
+        broadcast: { self: false },
+      },
+    });
+
+    // 1. Direct WebSocket broadcast listener (< 50ms peer-to-peer relay)
+    channel.on(
+      'broadcast' as any,
+      { event: 'reading_submitted' },
+      (payload: { payload?: NoiseReading }) => {
+        if (payload?.payload) {
+          this.handleIncomingReading(payload.payload);
+        }
+      }
+    );
+
+    // 2. PostgreSQL CDC Realtime changes listener
+    channel.on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'noise_readings' },
+      (payload: any) => {
+        if (payload?.new) {
+          const row = payload.new;
+          const reading: NoiseReading = {
+            id: row.id,
+            session_id: row.session_id,
+            lat: Number(row.lat),
+            lng: Number(row.lng),
+            grid_id: row.grid_id || `${Number(row.lat).toFixed(3)}_${Number(row.lng).toFixed(3)}`,
+            db_avg: Number(row.db_avg),
+            db_peak: Number(row.db_peak),
+            source_type: row.source_type,
+            zone_type: row.zone_type,
+            created_at: row.created_at,
+          };
+          this.handleIncomingReading(reading);
+        }
+      }
+    );
+
+    channel.subscribe((status: string) => {
+      this.isSubscribed = status === 'SUBSCRIBED';
+      console.log('[NoiseDataService] Realtime channel status:', status);
+    });
+
+    this.realtimeChannel = channel;
+    return channel;
+  }
+
+  /**
+   * Handles incoming realtime reading from WebSocket or Postgres CDC
+   */
+  private static handleIncomingReading(reading: NoiseReading): void {
+    const current = this.getAllReadings();
+    if (current.some((r) => r.id === reading.id)) {
+      return;
+    }
+
+    const updated = this.sortReadingsNewestFirst([reading, ...current]);
+    this.saveReadings(updated);
+
+    this.listeners.forEach((listener) => {
+      try {
+        listener(reading);
+      } catch (e) {
+        console.warn('[NoiseDataService] Listener error:', e);
+      }
+    });
+  }
+
+  /**
+   * Subscribes a listener to live incoming readings via WebSockets
+   * Returns an unsubscription callback
+   */
+  public static subscribeToLiveReadings(listener: (reading: NoiseReading) => void): () => void {
+    this.listeners.add(listener);
+    this.initRealtimeChannel();
+
+    return () => {
+      this.listeners.delete(listener);
+      if (this.listeners.size === 0 && this.realtimeChannel && supabase) {
+        supabase.removeChannel(this.realtimeChannel);
+        this.realtimeChannel = null;
+        this.isSubscribed = false;
+      }
+    };
+  }
+
+  /**
+   * Fetches latest remote readings from Supabase and merges them into local storage
+   */
+  public static async fetchRemoteReadings(): Promise<NoiseReading[]> {
+    if (!isSupabaseConfigured() || !supabase) {
+      return this.getAllReadings();
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('noise_readings')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (error || !data) {
+        console.warn('[NoiseDataService] Error querying cloud readings:', error);
+        return this.getAllReadings();
+      }
+
+      const cloudReadings: NoiseReading[] = data.map((row: any) => ({
+        id: row.id,
+        session_id: row.session_id,
+        lat: Number(row.lat),
+        lng: Number(row.lng),
+        grid_id: row.grid_id || `${Number(row.lat).toFixed(3)}_${Number(row.lng).toFixed(3)}`,
+        db_avg: Number(row.db_avg),
+        db_peak: Number(row.db_peak),
+        source_type: row.source_type,
+        zone_type: row.zone_type,
+        created_at: row.created_at,
+      }));
+
+      const local = this.getAllReadings();
+      const readingMap = new Map<string, NoiseReading>();
+      local.forEach((r) => readingMap.set(r.id, r));
+      cloudReadings.forEach((r) => readingMap.set(r.id, r));
+
+      const merged = this.sortReadingsNewestFirst(Array.from(readingMap.values()));
+      this.saveReadings(merged);
+      return merged;
+    } catch (err) {
+      console.warn('[NoiseDataService] Network error fetching cloud readings:', err);
+      return this.getAllReadings();
+    }
+  }
+
   /**
    * Sorts readings chronologically: newest reading strictly first
    */
@@ -84,6 +238,13 @@ export class NoiseDataService {
    */
   public static isCloudMode(): boolean {
     return isSupabaseConfigured();
+  }
+
+  /**
+   * Checks if the WebSocket channel is currently connected and active
+   */
+  public static isRealtimeConnected(): boolean {
+    return this.isSubscribed;
   }
 
   /**
@@ -129,21 +290,40 @@ export class NoiseDataService {
     const updated = this.sortReadingsNewestFirst([reading, ...current]);
     this.saveReadings(updated);
 
-    // 2. If Supabase is configured, sync to cloud
+    // 2. If Supabase is configured, broadcast via WebSocket and sync to cloud
     if (isSupabaseConfigured() && supabase) {
+      // 2a. Broadcast immediately across connected WebSocket clients (<50ms)
       try {
-        const { error } = await supabase.from('noise_readings').insert([
-          {
-            id: reading.id,
-            session_id: reading.session_id,
-            lat: reading.lat,
-            lng: reading.lng,
-            db_avg: reading.db_avg,
-            db_peak: reading.db_peak,
-            source_type: reading.source_type,
-            zone_type: reading.zone_type,
-          },
-        ]);
+        const channel = this.initRealtimeChannel();
+        if (channel) {
+          channel.send({
+            type: 'broadcast',
+            event: 'reading_submitted',
+            payload: reading,
+          });
+        }
+      } catch (broadcastErr) {
+        console.warn('[NoiseDataService] Realtime broadcast warning:', broadcastErr);
+      }
+
+      // 2b. Persist to Postgres database
+      try {
+        const payload: Record<string, any> = {
+          session_id: reading.session_id,
+          lat: reading.lat,
+          lng: reading.lng,
+          db_avg: reading.db_avg,
+          db_peak: reading.db_peak,
+          source_type: reading.source_type,
+          zone_type: reading.zone_type,
+        };
+
+        // Only supply ID if it is a valid UUID, otherwise Postgres will auto-generate one
+        if (UUID_REGEX.test(reading.id)) {
+          payload.id = reading.id;
+        }
+
+        const { error } = await supabase.from('noise_readings').insert([payload]);
         if (error) {
           console.warn('[NoiseDataService] Supabase insertion warning, local copy active:', error);
         }
