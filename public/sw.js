@@ -1,4 +1,14 @@
-const CACHE_NAME = 'noisemap-cache-v1';
+/**
+ * NoiseMap Service Worker (PWA & Web Push Alerts)
+ * Compatible with offline caching & W3C Push API
+ * 
+ * ZERO-RAW-AUDIO PRIVACY ARCHITECTURE:
+ * Push notifications and cached assets strictly process scalar telemetry
+ * (dBA metrics, timestamps, coordinate grids, incident status). No audio
+ * streams or recordings are ever handled, stored, or transmitted by this worker.
+ */
+
+const CACHE_NAME = 'noisemap-cache-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -62,4 +72,85 @@ self.addEventListener('fetch', (event) => {
         });
       })
   );
+});
+
+// 4. Web Push Notification Event Handler (Background Push API)
+self.addEventListener('push', (event) => {
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data = { body: event.data.text() };
+    }
+  }
+
+  const title = data.title || '🚨 NOISEMAP THRESHOLD ALERT';
+  const options = {
+    body: data.body || 'Geofenced acoustic threshold breach detected in your monitored zone.',
+    icon: data.icon || '/radar-icon.svg',
+    badge: data.badge || '/radar-icon.svg',
+    tag: data.tag || 'noisemap-geofence-alert',
+    renotify: true,
+    vibrate: [200, 100, 200, 100, 200],
+    requireInteraction: data.requireInteraction ?? false,
+    data: {
+      url: data.url || '/?tab=map',
+      incident_id: data.incident_id || null,
+      pin_id: data.pin_id || null,
+      timestamp: Date.now(),
+    },
+    actions: [
+      { action: 'explore', title: 'Open Radar Map' },
+      { action: 'close', title: 'Dismiss' },
+    ],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// 5. Notification Click Handler (Interactive Navigation)
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  if (event.action === 'close') {
+    return;
+  }
+
+  const targetUrl = event.notification.data?.url || '/?tab=map';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // If a tab is already open on the app, focus and navigate it
+      for (const client of windowClients) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      // Otherwise open a new window
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+
+// 6. Direct Client Message Relay (Allows main thread to trigger notifications via SW registration)
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+
+  if (event.data?.type === 'DISPATCH_LOCAL_ALERT') {
+    const { title, options } = event.data.payload || {};
+    if (title) {
+      self.registration.showNotification(title, {
+        icon: '/radar-icon.svg',
+        badge: '/radar-icon.svg',
+        vibrate: [200, 100, 200],
+        ...options,
+      });
+    }
+  }
 });
