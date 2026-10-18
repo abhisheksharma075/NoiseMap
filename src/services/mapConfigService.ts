@@ -6,6 +6,14 @@
 
 export type MapTileProvider = 'carto_dark' | 'stadia_dark' | 'osm_dark';
 
+export const MAP_CONFIG = {
+  // Standard OpenStreetMap tiles - 100% free, zero API key required, reliable uptime
+  tileUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19,
+  subdomains: ['a', 'b', 'c'],
+};
+
 export interface TileLayerConfig {
   provider: MapTileProvider;
   name: string;
@@ -19,8 +27,8 @@ export interface TileLayerConfig {
 }
 
 export class MapConfigService {
-  // CARTO Dark Matter is the zero-key, high-availability default for mobile & production
-  private static readonly DEFAULT_PROVIDER: MapTileProvider = 'carto_dark';
+  // OpenStreetMap Standard is the zero-key, high-availability default without watermarks
+  private static readonly DEFAULT_PROVIDER: MapTileProvider = 'osm_dark';
   private static readonly PROVIDER_STORAGE_KEY = 'noisemap_custom_map_provider';
   private static readonly KEY_STORAGE_PREFIX = 'noisemap_map_key_';
 
@@ -145,12 +153,11 @@ export class MapConfigService {
       default: {
         return {
           provider: 'osm_dark',
-          name: 'OpenStreetMap (Inverted Dark Filter)',
-          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
-          maxZoom: 19,
-          subdomains: 'abc',
+          name: 'OpenStreetMap Standard Tiles',
+          url: MAP_CONFIG.tileUrl,
+          attribution: MAP_CONFIG.attribution,
+          maxZoom: MAP_CONFIG.maxZoom,
+          subdomains: MAP_CONFIG.subdomains.join(''),
           requiresKey: false,
           hasKey: true,
           className: 'osm-dark-tiles',
