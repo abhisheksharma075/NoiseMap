@@ -4,7 +4,7 @@
 
 <br/><br/>
 
-# 🌐 NoiseMap: Civic Acoustic Intelligence Grid
+# 🌐 NoiseMap: Civic Acoustic Intelligence Grid 
 
 ### **Privacy-Preserving Distributed Environmental Noise Monitoring & Statutory CPCB Compliance Engine**
 
@@ -19,7 +19,7 @@
 
 <br/>
 
-**🔗 Official Live Application:**  
+**🔗 Official Live Application noise map:**  
 ### **👉 [https://noisemap-beta.vercel.app/](https://noisemap-beta.vercel.app/) 👈**
 
 *Instant PWA installation supported on iOS, Android, macOS, Windows, and Linux.*
