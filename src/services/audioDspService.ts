@@ -21,49 +21,114 @@ export class AudioDspEngine {
   // Translates normalized Web Audio float values to estimated ambient dB SPL
   private readonly CALIBRATION_OFFSET = 98.0;
 
+  private activeSessionToken: number = 0;
+
   public async start(): Promise<AnalyserNode> {
     if (this.isRunning) {
       throw new Error("Audio DSP engine is already active");
     }
 
-    // Request client microphone access with fallback for mobile browsers
+    const sessionToken = ++this.activeSessionToken;
+    let localAudioCtx: AudioContext | null = null;
+    let localMediaStream: MediaStream | null = null;
+
     try {
-      this.mediaStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-        },
-        video: false,
-      });
-    } catch (constraintErr) {
-      console.warn("Advanced audio constraints rejected; falling back to default audio stream", constraintErr);
-      this.mediaStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false,
-      });
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) {
+        throw new Error("Web Audio API is not supported by your browser");
+      }
+
+      localAudioCtx = new AudioContextClass();
+
+      // Immediately attempt to resume AudioContext within synchronous user gesture execution
+      if (localAudioCtx.state === 'suspended') {
+        await localAudioCtx.resume();
+      }
+
+      // Check if session became obsolete while awaiting resume
+      if (this.activeSessionToken !== sessionToken) {
+        localAudioCtx.close().catch(() => {});
+        const abortErr = new Error("Audio startup was cancelled by a newer session");
+        abortErr.name = "AbortError";
+        throw abortErr;
+      }
+
+      // Request client microphone access with fallback for mobile browsers
+      try {
+        localMediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          },
+          video: false,
+        });
+      } catch (constraintErr) {
+        console.warn("Advanced audio constraints rejected; falling back to default audio stream", constraintErr);
+        localMediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false,
+        });
+      }
+
+      // Check if session became obsolete while awaiting getUserMedia
+      if (this.activeSessionToken !== sessionToken) {
+        localMediaStream.getTracks().forEach((track) => track.stop());
+        localAudioCtx.close().catch(() => {});
+        const abortErr = new Error("Audio startup was cancelled by a newer session");
+        abortErr.name = "AbortError";
+        throw abortErr;
+      }
+
+      // Re-verify AudioContext state in case it suspended during permission prompt
+      if (localAudioCtx.state === 'suspended') {
+        await localAudioCtx.resume();
+      }
+
+      // Final token check before committing to instance fields
+      if (this.activeSessionToken !== sessionToken) {
+        localMediaStream.getTracks().forEach((track) => track.stop());
+        localAudioCtx.close().catch(() => {});
+        const abortErr = new Error("Audio startup was cancelled by a newer session");
+        abortErr.name = "AbortError";
+        throw abortErr;
+      }
+
+      const source = localAudioCtx.createMediaStreamSource(localMediaStream);
+      const analyser = localAudioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.75;
+
+      source.connect(analyser);
+
+      // Commit local handles to engine state atomically
+      this.audioCtx = localAudioCtx;
+      this.mediaStream = localMediaStream;
+      this.analyser = analyser;
+      this.isRunning = true;
+      this.sampleReadings = [];
+      this.currentPeak = 0;
+      this.lastMetrics = { instantDb: 0, avgDb: 0, peakDb: 0 };
+
+      return this.analyser;
+    } catch (err) {
+      // Clean up local resources if startup fails or was superseded
+      if (localMediaStream) {
+        localMediaStream.getTracks().forEach((track) => track.stop());
+      }
+      if (localAudioCtx) {
+        localAudioCtx.close().catch(() => {});
+      }
+
+      // If the error occurred on the active session, clear engine references
+      if (this.activeSessionToken === sessionToken) {
+        this.mediaStream = null;
+        this.audioCtx = null;
+        this.analyser = null;
+        this.isRunning = false;
+      }
+      throw err;
     }
-
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    this.audioCtx = new AudioContextClass();
-
-    if (this.audioCtx.state === 'suspended') {
-      await this.audioCtx.resume();
-    }
-
-    const source = this.audioCtx.createMediaStreamSource(this.mediaStream);
-    this.analyser = this.audioCtx.createAnalyser();
-    this.analyser.fftSize = 2048;
-    this.analyser.smoothingTimeConstant = 0.75;
-
-    source.connect(this.analyser);
-
-    this.isRunning = true;
-    this.sampleReadings = [];
-    this.currentPeak = 0;
-    this.lastMetrics = { instantDb: 0, avgDb: 0, peakDb: 0 };
-
-    return this.analyser;
   }
 
   public getMetrics(): AudioMetrics {
@@ -120,6 +185,9 @@ export class AudioDspEngine {
   }
 
   public stop(): AudioMetrics {
+    // Invalidate any in-flight startup sessions
+    this.activeSessionToken++;
+
     // Capture metrics while analyser is still connected
     let finalMetrics = this.lastMetrics;
     if (this.analyser && this.isRunning) {
@@ -164,6 +232,8 @@ export class AudioDspEngine {
   }
 
   public reset(): void {
+    // Invalidate any in-flight startup sessions
+    this.activeSessionToken++;
     this.sampleReadings = [];
     this.currentPeak = 0;
     this.lastMetrics = { instantDb: 0, avgDb: 0, peakDb: 0 };

@@ -25,15 +25,22 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
   const [countdown, setCountdown] = useState<number>(10);
   const [metrics, setMetrics] = useState<AudioMetrics>({ instantDb: 0, avgDb: 0, peakDb: 0 });
   const [analyserNode, setAnalyserNode] = useState<AnalyserNode | null>(null);
-  const [location, setLocation] = useState<QuantizedLocation | null>(null);
+  const [location, setLocation] = useState<QuantizedLocation | null>(() =>
+    locationService.getLastKnownLocation()
+  );
   const [error, setError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
 
   const countdownIntervalRef = useRef<number | null>(null);
   const metricsIntervalRef = useRef<number | null>(null);
   const isSamplingRef = useRef<boolean>(false);
+  const isStartingRef = useRef<boolean>(false);
+  const startupGenerationRef = useRef<number>(0);
 
   const stopSampling = useCallback(() => {
+    startupGenerationRef.current++;
+    isStartingRef.current = false;
+
     // Immediately inform soundFeedback that mic recording has finished
     soundFeedback.setRecordingActive(false);
 
@@ -47,6 +54,7 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
     }
 
     if (!isSamplingRef.current && !audioDspEngine.isActive()) {
+      setIsSampling(false);
       return;
     }
 
@@ -70,6 +78,14 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
   }, []);
 
   const startSampling = useCallback(async () => {
+    // Guard against concurrent invocations or rapid double-taps
+    if (isStartingRef.current || isSamplingRef.current || audioDspEngine.isActive()) {
+      return;
+    }
+
+    const currentGeneration = ++startupGenerationRef.current;
+    isStartingRef.current = true;
+
     try {
       // CRITICAL: Suppress all tap sounds and voice feedback before mic activation
       soundFeedback.setRecordingActive(true);
@@ -81,28 +97,40 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       setMetrics({ instantDb: 0, avgDb: 0, peakDb: 0 });
       audioDspEngine.reset();
 
-      // Attempt to retrieve and quantize geolocation in parallel
-      try {
-        const pos = await locationService.getQuantizedPosition();
-        setLocation(pos);
-      } catch (locErr) {
-        console.warn("GPS location unavailable or denied. Using default 100m grid cell.", locErr);
-        // Fallback default grid
-        const fallback = locationService.quantizeCoordinates(26.144, 91.736);
-        setLocation({
-          lat: fallback.lat,
-          lng: fallback.lng,
-          grid_id: fallback.grid_id,
-          accuracyMeters: 100,
-          isApproximate: true,
+      // Start geolocation concurrently WITHOUT awaiting to protect user gesture on iOS Safari
+      locationService
+        .getQuantizedPosition()
+        .then((pos) => {
+          if (startupGenerationRef.current === currentGeneration) {
+            setLocation(pos);
+          }
+        })
+        .catch((locErr) => {
+          console.warn("GPS location unavailable or denied. Using default 100m grid cell.", locErr);
+          if (startupGenerationRef.current === currentGeneration) {
+            const fallback = locationService.quantizeCoordinates(26.144, 91.736);
+            setLocation({
+              lat: fallback.lat,
+              lng: fallback.lng,
+              grid_id: fallback.grid_id,
+              accuracyMeters: 100,
+              isApproximate: true,
+            });
+          }
         });
+
+      // Directly initialize Web Audio hardware on user gesture call path
+      const analyser = await audioDspEngine.start();
+
+      // Check if sampling was cancelled/aborted while audio was starting
+      if (startupGenerationRef.current !== currentGeneration) {
+        return;
       }
 
-      // Initialize Web Audio API hardware analyser
-      const analyser = await audioDspEngine.start();
+      isStartingRef.current = false;
+      isSamplingRef.current = true;
       setAnalyserNode(analyser);
       setIsSampling(true);
-      isSamplingRef.current = true;
 
       // Immediately take a first sample reading
       const initialMetrics = audioDspEngine.getMetrics();
@@ -128,9 +156,23 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       }, 1000);
 
     } catch (err: unknown) {
-      soundFeedback.setRecordingActive(false);
+      // If this error is from an obsolete / superseded startup, ignore it completely
+      if (startupGenerationRef.current !== currentGeneration) {
+        return;
+      }
+
+      isStartingRef.current = false;
       isSamplingRef.current = false;
+      soundFeedback.setRecordingActive(false);
+      if (audioDspEngine.isActive()) {
+        audioDspEngine.stop();
+      }
+
       const errObj = err as { name?: string; message?: string };
+      if (errObj.name === 'AbortError') {
+        // Cleanly superseded or cancelled
+        return;
+      }
       if (errObj.name === 'NotAllowedError' || errObj.name === 'PermissionDeniedError') {
         setPermissionDenied(true);
         setError("Microphone permission was denied. Please allow microphone access in your browser settings to sample noise.");
@@ -142,6 +184,8 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
   }, [stopSampling]);
 
   const reset = useCallback(() => {
+    startupGenerationRef.current++;
+    isStartingRef.current = false;
     soundFeedback.setRecordingActive(false);
     if (countdownIntervalRef.current) {
       clearInterval(countdownIntervalRef.current);
@@ -166,6 +210,8 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
 
   useEffect(() => {
     return () => {
+      startupGenerationRef.current++;
+      isStartingRef.current = false;
       isSamplingRef.current = false;
       if (audioDspEngine.isActive()) {
         audioDspEngine.stop();

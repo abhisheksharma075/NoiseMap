@@ -6,7 +6,7 @@ console.log('🧪 NOISEMAP AUDIO DSP & METRICS UNIT TEST SUITE');
 console.log('======================================================\n');
 
 let passed = 0;
-let total = 6;
+let total = 7;
 
 // TEST 1: RMS Calculation of Sine Wave & Silence
 try {
@@ -201,6 +201,75 @@ try {
 
   assert.strictEqual(validatePayload(validPayload), true);
   console.log('✅ PASSED (Payload validation verifies non-zero decibels)');
+  passed++;
+} catch (err) {
+  console.log('❌ FAILED:', err.message);
+}
+
+// TEST 7: Monotonic Generation Token & Obsolete Startup Isolation
+try {
+  process.stdout.write('[TEST 7/7] Monotonic Token Startup Race & Obsolete Stream Isolation: ');
+
+  class MockHardwareEngine {
+    constructor() {
+      this.activeToken = 0;
+      this.currentStreamId = null;
+      this.isRunning = false;
+      this.stoppedStreams = [];
+    }
+
+    async start(streamId, delayMs) {
+      const token = ++this.activeToken;
+      const localStream = { id: streamId, stopped: false };
+
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+
+      if (this.activeToken !== token) {
+        // Obsolete startup: clean up local resource without touching active engine
+        localStream.stopped = true;
+        this.stoppedStreams.push(localStream.id);
+        const err = new Error('Superseded');
+        err.name = 'AbortError';
+        throw err;
+      }
+
+      this.currentStreamId = localStream.id;
+      this.isRunning = true;
+      return localStream;
+    }
+
+    stop() {
+      this.activeToken++;
+      this.isRunning = false;
+      this.currentStreamId = null;
+    }
+  }
+
+  const engine = new MockHardwareEngine();
+
+  // 1. Startup A begins with longer delay (50ms)
+  const startupAPromise = engine.start('stream_A', 50).catch((err) => err);
+
+  // 2. User cancels/stops Startup A
+  engine.stop();
+
+  // 3. Startup B begins with shorter delay (20ms)
+  const startupBPromise = engine.start('stream_B', 20);
+
+  // Await both
+  const [resultA, resultB] = await Promise.all([startupAPromise, startupBPromise]);
+
+  // Assertions:
+  // - Startup A was rejected with AbortError and its stream was marked stopped
+  assert.strictEqual(resultA.name, 'AbortError', 'Startup A must be rejected with AbortError');
+  assert.strictEqual(engine.stoppedStreams.includes('stream_A'), true, 'Startup A stream must be stopped on resolution');
+
+  // - Startup B succeeded and is the active running stream
+  assert.strictEqual(resultB.id, 'stream_B', 'Startup B must succeed');
+  assert.strictEqual(engine.currentStreamId, 'stream_B', 'Active engine stream must be stream_B');
+  assert.strictEqual(engine.isRunning, true, 'Engine must remain running for Startup B');
+
+  console.log('✅ PASSED (Obsolete Startup A isolated & cleaned up; Startup B preserved)');
   passed++;
 } catch (err) {
   console.log('❌ FAILED:', err.message);
