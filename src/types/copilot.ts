@@ -10,6 +10,8 @@ export interface ProviderSessionInfo {
   maskedKey?: string;
   expiresAt?: number;
   isServerDefault?: boolean;
+  apiKey?: string;
+  mode?: 'server_session' | 'client_direct';
 }
 
 export interface ConnectProviderRequest {
@@ -81,6 +83,26 @@ export interface ChatMessage {
   toolsUsed?: ToolCallExecution[];
   suggestedAction?: MapActionPayload;
   complaintDraft?: ComplaintDraftPayload;
+  relatedQuestions?: string[];
+}
+
+export type FaqCategoryType =
+  | 'ABOUT NOISEMAP'
+  | 'UNDERSTANDING NOISE LEVELS'
+  | 'NOISE MAP'
+  | 'NOISE INCIDENTS'
+  | 'REPORTING NOISE'
+  | 'PRIVACY AND SECURITY';
+
+export interface FaqItem {
+  id: string;
+  category: FaqCategoryType;
+  question: string;
+  alternatives: string[];
+  keywords: string[];
+  answer: string;
+  relatedQuestions?: string[];
+  relatedAction?: MapActionPayload;
 }
 
 export interface ChatApiRequest {

@@ -1,36 +1,49 @@
-import { defineConfig, loadEnv, Plugin } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { handleChatApiRequest, handleProviderSessionRequest } from './server/chatHandler.js';
 
 function aiCopilotPlugin(): Plugin {
+  const apiHandler = async (req: any, res: any, next: any) => {
+    const rawUrl = req.url ? req.url.split('?')[0] : '';
+    const path = rawUrl.replace(/\/+$/, '');
+
+    if (path === '/api/copilot/provider-session') {
+      await handleProviderSessionRequest(req, res);
+      return;
+    }
+    if (path === '/api/chat') {
+      await handleChatApiRequest(req, res);
+      return;
+    }
+    if (path === '/api/health') {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(
+        JSON.stringify({
+          status: 'ok',
+          service: 'NoiseMap AI Copilot API',
+          model:
+            process.env.GEMINI_MODEL === 'gemini-2.5-flash'
+              ? 'gemini-3.8-flash'
+              : process.env.GEMINI_MODEL || 'gemini-3.8-flash',
+          hasApiKey: !!(
+            process.env.GEMINI_API_KEY ||
+            process.env.GOOGLE_API_KEY ||
+            process.env.OPENAI_API_KEY
+          ),
+        })
+      );
+      return;
+    }
+    next();
+  };
+
   return {
     name: 'noisemap-ai-copilot-plugin',
     configureServer(server) {
-      server.middlewares.use('/api/copilot/provider-session', async (req, res) => {
-        await handleProviderSessionRequest(req, res);
-      });
-      server.middlewares.use('/api/chat', async (req, res) => {
-        await handleChatApiRequest(req, res);
-      });
-      server.middlewares.use('/api/health', (_req, res) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(
-          JSON.stringify({
-            status: 'ok',
-            service: 'NoiseMap AI Copilot API',
-            model: process.env.GEMINI_MODEL === 'gemini-2.5-flash' ? 'gemini-3.8-flash' : (process.env.GEMINI_MODEL || 'gemini-3.8-flash'),
-            hasApiKey: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.OPENAI_API_KEY),
-          })
-        );
-      });
+      server.middlewares.use(apiHandler);
     },
     configurePreviewServer(server) {
-      server.middlewares.use('/api/copilot/provider-session', async (req, res) => {
-        await handleProviderSessionRequest(req, res);
-      });
-      server.middlewares.use('/api/chat', async (req, res) => {
-        await handleChatApiRequest(req, res);
-      });
+      server.middlewares.use(apiHandler);
     },
   };
 }

@@ -62,40 +62,58 @@ export async function handleChatApiRequest(req, res) {
     return;
   }
 
-  // Parse JSON body
-  let rawBody = '';
-  try {
-    for await (const chunk of req) {
-      rawBody += chunk;
-      if (rawBody.length > 50000) {
-        throw new Error('Payload too large');
-      }
-    }
-  } catch {
-    res.statusCode = 413;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(
-      JSON.stringify({
-        success: false,
-        error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request payload exceeded maximum size.' },
-      })
-    );
-    return;
-  }
-
+  // Parse JSON body (supports pre-parsed req.body from serverless/connect as well as raw streams)
   let body;
-  try {
-    body = rawBody ? JSON.parse(rawBody) : {};
-  } catch {
-    res.statusCode = 400;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(
-      JSON.stringify({
-        success: false,
-        error: { code: 'INVALID_JSON', message: 'Request body must be valid JSON.' },
-      })
-    );
-    return;
+  if (req.body && typeof req.body === 'object') {
+    body = req.body;
+  } else if (typeof req.body === 'string' && req.body.trim()) {
+    try {
+      body = JSON.parse(req.body);
+    } catch {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: { code: 'INVALID_JSON', message: 'Request body must be valid JSON.' },
+        })
+      );
+      return;
+    }
+  } else {
+    let rawBody = '';
+    try {
+      for await (const chunk of req) {
+        rawBody += chunk;
+        if (rawBody.length > 50000) {
+          throw new Error('Payload too large');
+        }
+      }
+    } catch {
+      res.statusCode = 413;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request payload exceeded maximum size.' },
+        })
+      );
+      return;
+    }
+
+    try {
+      body = rawBody ? JSON.parse(rawBody) : {};
+    } catch {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: { code: 'INVALID_JSON', message: 'Request body must be valid JSON.' },
+        })
+      );
+      return;
+    }
   }
 
   // Validate payload
@@ -253,29 +271,42 @@ export async function handleProviderSessionRequest(req, res) {
   }
 
   if (req.method === 'POST') {
-    let rawBody = '';
-    try {
-      for await (const chunk of req) {
-        rawBody += chunk;
-        if (rawBody.length > 10000) {
-          throw new Error('Payload too large');
-        }
-      }
-    } catch {
-      res.statusCode = 413;
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ success: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'Payload too large.' } }));
-      return;
-    }
-
     let body = {};
-    try {
-      body = rawBody ? JSON.parse(rawBody) : {};
-    } catch {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ success: false, error: { code: 'INVALID_JSON', message: 'Invalid JSON request body.' } }));
-      return;
+    if (req.body && typeof req.body === 'object') {
+      body = req.body;
+    } else if (typeof req.body === 'string' && req.body.trim()) {
+      try {
+        body = JSON.parse(req.body);
+      } catch {
+        res.statusCode = 400;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: false, error: { code: 'INVALID_JSON', message: 'Invalid JSON request body.' } }));
+        return;
+      }
+    } else {
+      let rawBody = '';
+      try {
+        for await (const chunk of req) {
+          rawBody += chunk;
+          if (rawBody.length > 10000) {
+            throw new Error('Payload too large');
+          }
+        }
+      } catch {
+        res.statusCode = 413;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'Payload too large.' } }));
+        return;
+      }
+
+      try {
+        body = rawBody ? JSON.parse(rawBody) : {};
+      } catch {
+        res.statusCode = 400;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: false, error: { code: 'INVALID_JSON', message: 'Invalid JSON request body.' } }));
+        return;
+      }
     }
 
     const { provider, apiKey, testOnly = false } = body;

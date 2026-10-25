@@ -62,11 +62,11 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask NoiseMap AI Copilot about noise pollution, dB levels, or acoustic mitigation..."
+            placeholder="Ask a question about NoiseMap, noise levels, incidents, or reporting..."
             disabled={isLoading}
             maxLength={maxLength + 100}
             className="w-full bg-transparent resize-none text-xs sm:text-sm text-graphite dark:text-night-text placeholder:text-stone-400 dark:placeholder:text-night-muted focus:outline-none py-1.5 px-2 max-h-36 font-sans leading-relaxed disabled:opacity-50"
-            aria-label="Message to NoiseMap AI Copilot"
+            aria-label="Message to NoiseMap Copilot"
           />
         </div>
 

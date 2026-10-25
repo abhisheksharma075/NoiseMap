@@ -11,7 +11,8 @@
     "test:copilot": "node scripts/test-ai-copilot.js",
     "test:provider": "node scripts/test-provider-connection.js",
     "test:gemini": "node scripts/test-gemini-interactions.js",
-    "test:all": "node scripts/test-gemini-interactions.js && node scripts/test-master-platform-verification.js && node scripts/test-provider-connection.js && node scripts/test-ai-copilot-stage2.js && node scripts/test-ai-copilot.js && node scripts/test-noise-activity-lifecycle.js"
+    "test:faq": "node scripts/test-faq-chatbot.js",
+    "test:all": "node scripts/test-faq-chatbot.js && node scripts/test-gemini-interactions.js && node scripts/test-master-platform-verification.js && node scripts/test-provider-connection.js && node scripts/test-ai-copilot-stage2.js && node scripts/test-ai-copilot.js && node scripts/test-noise-activity-lifecycle.js"
   },
   "dependencies": {
     "@google/genai": "^2.31.0",

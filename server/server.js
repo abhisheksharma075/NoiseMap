@@ -61,21 +61,22 @@ const server = http.createServer(async (req, res) => {
   }
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const pathname = url.pathname.replace(/\/+$/, '') || '/';
 
   // API endpoint: /api/chat
-  if (url.pathname === '/api/chat') {
+  if (pathname === '/api/chat') {
     await handleChatApiRequest(req, res);
     return;
   }
 
   // API endpoint: /api/copilot/provider-session
-  if (url.pathname === '/api/copilot/provider-session') {
+  if (pathname === '/api/copilot/provider-session') {
     await handleProviderSessionRequest(req, res);
     return;
   }
 
   // API endpoint: /api/health
-  if (url.pathname === '/api/health') {
+  if (pathname === '/api/health') {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.end(

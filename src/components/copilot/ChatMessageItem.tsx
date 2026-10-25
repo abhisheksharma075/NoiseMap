@@ -7,6 +7,7 @@ interface ChatMessageItemProps {
   onRetry?: (message: ChatMessage) => void;
   onExecuteMapAction?: (action: MapActionPayload) => void;
   onReviewComplaintDraft?: (draft: ComplaintDraftPayload) => void;
+  onSelectQuestion?: (question: string) => void;
 }
 
 /**
@@ -130,6 +131,7 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
   onRetry,
   onExecuteMapAction,
   onReviewComplaintDraft,
+  onSelectQuestion,
 }) => {
   const isUser = message.role === 'user';
   const isError = message.status === 'error';
@@ -260,6 +262,28 @@ export const ChatMessageItem: React.FC<ChatMessageItemProps> = ({
                       {t.tool}
                     </span>
                   ))}
+                </div>
+              )}
+
+              {/* Related Follow-Up Questions (FAQ Mode) */}
+              {message.relatedQuestions && message.relatedQuestions.length > 0 && onSelectQuestion && (
+                <div className="mt-3 pt-2.5 border-t border-paper-border/70 dark:border-night-border/70">
+                  <span className="text-[10px] font-mono font-bold text-stone-500 dark:text-night-muted uppercase tracking-wider block mb-1.5">
+                    Suggested Questions:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {message.relatedQuestions.map((rq, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => onSelectQuestion(rq)}
+                        className="text-left text-[11px] font-sans px-2.5 py-1 rounded-lg bg-forest/5 hover:bg-forest/15 dark:bg-teal-500/10 dark:hover:bg-teal-500/20 text-forest dark:text-teal-200 border border-forest/20 dark:border-teal-500/30 transition-all cursor-pointer flex items-center gap-1 shadow-xs"
+                      >
+                        <span>{rq}</span>
+                        <ArrowRight className="w-3 h-3 text-forest dark:text-teal-signal flex-shrink-0" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </>

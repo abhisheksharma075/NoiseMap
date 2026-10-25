@@ -41,7 +41,7 @@ console.log('===================================================================
 // TEST 1: Provider Selection & Allowlist Validation
 // -----------------------------------------------------------------------------
 try {
-  process.stdout.write('[TEST 1/15] Provider registry supports Gemini and OpenAI only: ');
+  process.stdout.write('[TEST 1/16] Provider registry supports Gemini and OpenAI only: ');
   assert(SUPPORTED_PROVIDERS.gemini, 'Gemini must be supported');
   assert(SUPPORTED_PROVIDERS.openai, 'OpenAI must be supported');
   assert.strictEqual(SUPPORTED_PROVIDERS.gemini.recommended, true);
@@ -567,12 +567,62 @@ try {
 }
 
 // -----------------------------------------------------------------------------
+// TEST 16: Pre-parsed Body Support (Vercel Serverless / Express / Connect Middleware)
+// -----------------------------------------------------------------------------
+try {
+  process.stdout.write('[TEST 16/16] Pre-parsed req.body supported without stream hang: ');
+  const mockFetch = async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ id: 'int_preparsed', status: 'completed', model: 'gemini-3.8-flash', output_text: 'pong' }),
+  });
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = mockFetch;
+
+  // Mock serverless request where req.body is already an object
+  const serverlessReq = {
+    method: 'POST',
+    body: { provider: 'gemini', apiKey: 'AIzaSyServerlessKeyTest123', testOnly: true },
+    headers: { 'content-type': 'application/json' },
+  };
+
+  let statusCode = 200;
+  let responseData = null;
+  const res = {
+    setHeader: () => {},
+    end: (chunk) => {
+      responseData = JSON.parse(chunk);
+    },
+  };
+  Object.defineProperty(res, 'statusCode', {
+    set(code) {
+      statusCode = code;
+    },
+    get() {
+      return statusCode;
+    },
+  });
+
+  await handleProviderSessionRequest(serverlessReq, res);
+  assert.strictEqual(statusCode, 200);
+  assert.strictEqual(responseData.success, true);
+  assert.strictEqual(responseData.valid, true);
+
+  globalThis.fetch = originalFetch;
+  console.log('✓ PASSED (Pre-parsed req.body handled instantly in serverless/Vercel mode)');
+  passed++;
+} catch (err) {
+  console.log('✗ FAILED:', err.message);
+  failed++;
+}
+
+// -----------------------------------------------------------------------------
 // SUMMARY
 // -----------------------------------------------------------------------------
 console.log('\n------------------------------------------------------------------------');
 console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);
 if (failed === 0) {
-  console.log('🎉 ALL 15 PROVIDER CONNECTION & MULTI-MODEL TESTS PASSED SUCCESSFULLY!');
+  console.log('🎉 ALL 16 PROVIDER CONNECTION & MULTI-MODEL TESTS PASSED SUCCESSFULLY!');
 } else {
   console.log('❌ SOME TESTS FAILED.');
   process.exit(1);
