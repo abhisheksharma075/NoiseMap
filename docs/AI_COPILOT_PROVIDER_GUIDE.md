@@ -8,7 +8,7 @@ NoiseMap AI Copilot supports both **Google Gemini** and **OpenAI** language mode
 
 | Provider | Supported Model | Function Calling Support | Official API Key Dashboard |
 | :--- | :--- | :---: | :--- |
-| **Google Gemini** *(Recommended)* | `gemini-2.5-flash` | Full (All 9 NoiseMap Tools) | [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+| **Google Gemini** *(Recommended)* | `gemini-3.8-flash` | Full (Interactions API & All 9 NoiseMap Tools) | [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
 | **OpenAI** | `gpt-4o-mini`, `gpt-4o` | Full (All 9 NoiseMap Tools) | [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
 
 > [!NOTE]

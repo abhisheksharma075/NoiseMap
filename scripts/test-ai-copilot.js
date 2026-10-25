@@ -256,12 +256,12 @@ try {
   const res = await generateGeminiChatResponse({
     message: 'What is noise pollution?',
     apiKey: 'mock_valid_key',
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.8-flash',
     fetchFn: mockFetch,
   });
 
   assert.strictEqual(res.message, 'Noise pollution refers to unwanted or harmful outdoor or indoor sound.');
-  assert.strictEqual(res.model, 'gemini-2.5-flash');
+  assert.strictEqual(res.model, 'gemini-3.8-flash');
 
   console.log('✓ PASSED (Normalized message extracted and model attributed correctly)');
   passed++;

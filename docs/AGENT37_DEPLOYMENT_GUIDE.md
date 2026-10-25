@@ -53,7 +53,7 @@ In the Agent 37 workload configuration settings, configure:
 | `NODE_ENV` | `production` | Production optimizations |
 | `PORT` | `3001` (or platform default) | Container listening port |
 | `GEMINI_API_KEY` | `your_actual_key` | Google AI Studio API key |
-| `GEMINI_MODEL` | `gemini-2.5-flash` | Gemini model identifier |
+| `GEMINI_MODEL` | `gemini-3.8-flash` | Gemini model identifier (Interactions API) |
 | `ALLOWED_ORIGIN` | `https://noisemap.vercel.app` | CORS restriction to your frontend domain |
 
 ### Step 3: Configure Healthcheck & Networking
@@ -83,7 +83,7 @@ Expected output:
   "service": "NoiseMap AI Copilot Backend (Stage 2)",
   "version": "1.2.0",
   "environment": "production",
-  "model": "gemini-2.5-flash",
+  "model": "gemini-3.8-flash",
   "hasApiKey": true
 }
 ```

@@ -1100,6 +1100,36 @@ export function getGeminiToolDeclarations() {
 }
 
 /**
+ * Returns formatted tool declarations for the Google Gemini Interactions API.
+ * Follows the supported { type: 'function', name, description, parameters } schema.
+ */
+export function getInteractionsToolDeclarations() {
+  return Object.values(TOOL_REGISTRY).map((t) => {
+    const rawParams = t.declaration.parameters || {};
+    const schema = JSON.parse(JSON.stringify(rawParams));
+    const normalizeType = (obj) => {
+      if (!obj || typeof obj !== 'object') return;
+      if (typeof obj.type === 'string') {
+        obj.type = obj.type.toLowerCase();
+      }
+      if (obj.properties) {
+        for (const key of Object.keys(obj.properties)) {
+          normalizeType(obj.properties[key]);
+        }
+      }
+      if (obj.items) normalizeType(obj.items);
+    };
+    normalizeType(schema);
+    return {
+      type: 'function',
+      name: t.declaration.name,
+      description: t.declaration.description,
+      parameters: schema,
+    };
+  });
+}
+
+/**
  * Executes an allowlisted tool function safely with parameter validation and result bounding.
  */
 export function executeTool(toolName, args = {}, dataset = serverReadingsStore) {

@@ -84,7 +84,7 @@ const server = http.createServer(async (req, res) => {
         service: 'NoiseMap AI Copilot Backend (Stage 2)',
         version: '1.2.0',
         environment: process.env.NODE_ENV || 'development',
-        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        model: process.env.GEMINI_MODEL === 'gemini-2.5-flash' ? 'gemini-3.8-flash' : (process.env.GEMINI_MODEL || 'gemini-3.8-flash'),
         hasApiKey: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY),
         timestamp: new Date().toISOString(),
       })

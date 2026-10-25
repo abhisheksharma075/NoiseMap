@@ -106,7 +106,7 @@ export class AiCopilotService {
     if (!testOnly && data.sessionToken) {
       this.activeSession = {
         provider: data.provider || provider,
-        model: data.model || (provider === 'gemini' ? 'gemini-2.5-flash' : 'gpt-4o-mini'),
+        model: data.model || (provider === 'gemini' ? 'gemini-3.8-flash' : 'gpt-4o-mini'),
         sessionToken: data.sessionToken,
         maskedKey: data.maskedKey,
         expiresAt: data.expiresAt,
@@ -167,7 +167,7 @@ export class AiCopilotService {
         if (data.isServerDefault && !this.activeSession) {
           this.activeSession = {
             provider: data.provider || 'gemini',
-            model: data.model || 'gemini-2.5-flash',
+            model: data.model || 'gemini-3.8-flash',
             isServerDefault: true,
           };
         }

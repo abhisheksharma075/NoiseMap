@@ -72,11 +72,16 @@ class ProviderSessionStore {
         ? `${cleanKey.slice(0, 4)}...${cleanKey.slice(-4)}`
         : '••••••••';
 
+    let activeModel = model || (provider === 'gemini' ? 'gemini-3.8-flash' : 'gpt-4o-mini');
+    if (provider === 'gemini' && (activeModel === 'gemini-2.5-flash' || activeModel === 'models/gemini-2.5-flash')) {
+      activeModel = 'gemini-3.8-flash';
+    }
+
     const session = {
       id: sessionToken,
       provider,
       apiKey: cleanKey,
-      model: model || (provider === 'gemini' ? 'gemini-2.5-flash' : 'gpt-4o-mini'),
+      model: activeModel,
       maskedKey,
       createdAt: now,
       lastUsedAt: now,

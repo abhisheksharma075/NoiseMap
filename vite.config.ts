@@ -18,7 +18,7 @@ function aiCopilotPlugin(): Plugin {
           JSON.stringify({
             status: 'ok',
             service: 'NoiseMap AI Copilot API',
-            model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+            model: process.env.GEMINI_MODEL === 'gemini-2.5-flash' ? 'gemini-3.8-flash' : (process.env.GEMINI_MODEL || 'gemini-3.8-flash'),
             hasApiKey: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.OPENAI_API_KEY),
           })
         );

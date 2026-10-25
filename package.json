@@ -10,9 +10,11 @@
     "server": "node server/server.js",
     "test:copilot": "node scripts/test-ai-copilot.js",
     "test:provider": "node scripts/test-provider-connection.js",
-    "test:all": "node scripts/test-master-platform-verification.js && node scripts/test-provider-connection.js && node scripts/test-ai-copilot-stage2.js && node scripts/test-ai-copilot.js && node scripts/test-noise-activity-lifecycle.js"
+    "test:gemini": "node scripts/test-gemini-interactions.js",
+    "test:all": "node scripts/test-gemini-interactions.js && node scripts/test-master-platform-verification.js && node scripts/test-provider-connection.js && node scripts/test-ai-copilot-stage2.js && node scripts/test-ai-copilot.js && node scripts/test-noise-activity-lifecycle.js"
   },
   "dependencies": {
+    "@google/genai": "^2.31.0",
     "@supabase/supabase-js": "^2.49.1",
     "chart.js": "^4.4.8",
     "clsx": "^2.1.1",

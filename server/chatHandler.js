@@ -148,7 +148,10 @@ export async function handleChatApiRequest(req, res) {
     if (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) {
       activeProvider = 'gemini';
       activeApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-      activeModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+      activeModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+      if (activeModel === 'gemini-2.5-flash' || activeModel === 'models/gemini-2.5-flash') {
+        activeModel = 'gemini-3.8-flash';
+      }
     } else if (process.env.OPENAI_API_KEY) {
       activeProvider = 'openai';
       activeApiKey = process.env.OPENAI_API_KEY;
@@ -413,7 +416,7 @@ export async function handleProviderSessionRequest(req, res) {
         model:
           session?.model ||
           (hasServerGemini
-            ? process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+            ? (process.env.GEMINI_MODEL === 'gemini-2.5-flash' ? 'gemini-3.8-flash' : process.env.GEMINI_MODEL || 'gemini-3.8-flash')
             : hasServerOpenAi
             ? process.env.OPENAI_MODEL || 'gpt-4o-mini'
             : null),

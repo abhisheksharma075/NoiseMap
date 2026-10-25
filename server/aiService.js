@@ -11,7 +11,7 @@ import {
 } from './noiseMapTools.js';
 
 export const AI_CONFIG = {
-  DEFAULT_MODEL: 'gemini-2.5-flash',
+  DEFAULT_MODEL: 'gemini-3.8-flash',
   MAX_MESSAGE_LENGTH: 2000,
   MAX_HISTORY_ITEMS: 20,
   REQUEST_TIMEOUT_MS: 30000,

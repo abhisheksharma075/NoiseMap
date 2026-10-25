@@ -86,13 +86,17 @@ try {
   process.stdout.write('[TEST 3/15] Validates Gemini key via minimal model ping: ');
   const mockFetch = async (url, options) => {
     assert(url.includes('generativelanguage.googleapis.com'));
-    assert(url.includes('gemini-2.5-flash'));
+    assert(url.includes('interactions'));
     assert(options.method === 'POST');
+    assert(options.body.includes('gemini-3.8-flash'));
     return {
       ok: true,
       status: 200,
       json: async () => ({
-        candidates: [{ content: { parts: [{ text: 'pong' }] } }],
+        id: 'interaction_validation_test_1',
+        status: 'completed',
+        model: 'gemini-3.8-flash',
+        output_text: 'pong',
       }),
     };
   };
@@ -100,9 +104,9 @@ try {
   const res = await validateGeminiKey('AIzaSyFakeValidTestKey12345', mockFetch);
   assert.strictEqual(res.valid, true);
   assert.strictEqual(res.provider, 'gemini');
-  assert.strictEqual(res.model, 'gemini-2.5-flash');
+  assert.strictEqual(res.model, 'gemini-3.8-flash');
 
-  console.log('✓ PASSED (Gemini 2.5 Flash validation ping confirmed valid)');
+  console.log('✓ PASSED (Gemini 3.8 Flash Interactions API validation ping confirmed valid)');
   passed++;
 } catch (err) {
   console.log('✗ FAILED:', err.message);
@@ -187,7 +191,7 @@ try {
   const session = sessionStore.createSession({
     provider: 'gemini',
     apiKey: 'AIzaSy1234567890abcdefghijklmnopqrstuv',
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.8-flash',
   });
 
   assert(session.sessionToken.startsWith('nm_ps_'));
@@ -364,7 +368,7 @@ try {
   globalThis.fetch = async () => ({
     ok: true,
     status: 200,
-    json: async () => ({ candidates: [{ content: { parts: [{ text: 'pong' }] } }] }),
+    json: async () => ({ id: 'nm_int_conn_test', status: 'completed', model: 'gemini-3.8-flash', output_text: 'pong' }),
   });
 
   const req = (async function* () {
@@ -416,7 +420,7 @@ try {
   const testSession = sessionStore.createSession({
     provider: 'gemini',
     apiKey: 'AIzaSyDisconnectTestKey',
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.8-flash',
   });
 
   const req = (async function* () {
@@ -524,7 +528,7 @@ try {
   const session = sessionStore.createSession({
     provider: 'gemini',
     apiKey: fakeSecret,
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.8-flash',
   });
   const sessionJson = JSON.stringify(session);
   assert(sessionJson.includes('AIza...s999'), 'Only masked key should appear in preview');

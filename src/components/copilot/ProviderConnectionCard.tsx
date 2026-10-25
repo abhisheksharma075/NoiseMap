@@ -78,7 +78,7 @@ export const ProviderConnectionCard: React.FC<ProviderConnectionCardProps> = ({
         setTimeout(() => {
           onConnected({
             provider: response.provider || selectedProvider,
-            model: response.model || (selectedProvider === 'gemini' ? 'gemini-2.5-flash' : 'gpt-4o-mini'),
+            model: response.model || (selectedProvider === 'gemini' ? 'gemini-3.8-flash' : 'gpt-4o-mini'),
             sessionToken: response.sessionToken,
             maskedKey: response.maskedKey,
             expiresAt: response.expiresAt,
