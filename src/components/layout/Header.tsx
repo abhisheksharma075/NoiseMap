@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigation, Sun, Moon, Activity } from 'lucide-react';
+import { Navigation, Sun, Moon, Activity, Bot } from 'lucide-react';
 import { StatusBadge } from '../common/StatusBadge';
 import { NoiseMapLogo } from '../common/NoiseMapLogo';
 import { useTheme } from '../../context/ThemeContext';
@@ -8,16 +8,20 @@ interface HeaderProps {
   currentGrid?: string;
   activeIncidentsCount?: number;
   isCapturing?: boolean;
+  isCopilotActive?: boolean;
   onOpenDemoToolbar?: () => void;
   onNavigateHome?: () => void;
+  onNavigateCopilot?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   currentGrid = 'AUTO_DETECT',
   activeIncidentsCount = 1,
   isCapturing = false,
+  isCopilotActive = false,
   onOpenDemoToolbar,
   onNavigateHome,
+  onNavigateCopilot,
 }) => {
   const { theme, toggleTheme } = useTheme();
 
@@ -35,6 +39,23 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Real-time Field Telemetry Strip & Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 font-mono text-xs">
+          {/* AI Copilot Quick Launch Button */}
+          {onNavigateCopilot && (
+            <button
+              type="button"
+              onClick={onNavigateCopilot}
+              className={`px-2.5 py-1.5 rounded-xl border transition-all font-mono text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-field ${
+                isCopilotActive
+                  ? 'border-forest dark:border-teal-signal bg-forest dark:bg-teal-600 text-paper dark:text-night-bg shadow-[0_0_12px_rgba(45,212,191,0.3)]'
+                  : 'border-emerald-500/30 dark:border-teal-500/40 bg-emerald-500/10 dark:bg-teal-500/15 text-forest dark:text-teal-300 hover:bg-emerald-500/20'
+              }`}
+              title="Open NoiseMap AI Copilot"
+            >
+              <Bot className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">AI COPILOT</span>
+            </button>
+          )}
+
           {/* Active Hazard Counter */}
           {activeIncidentsCount > 0 && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-terracotta-subtle dark:bg-rose-950/40 border border-terracotta/30 dark:border-rose-800/60 text-terracotta dark:text-rose-300 text-[10px] sm:text-xs font-semibold">

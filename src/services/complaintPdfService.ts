@@ -141,7 +141,7 @@ export class ComplaintPdfService {
     const excessDb = Math.max(incident.avg_db - daytimeLimit, 0);
 
     const acousticRows = [
-      ['Average Equivalent Level (Leq):', `${incident.avg_db.toFixed(1)} dB(A)`],
+      ['Arithmetic Mean Level (avg):', `${incident.avg_db.toFixed(1)} dB(A)*`],
       ['Peak Impulse Level (Lmax):', `${incident.peak_db.toFixed(1)} dB(A)`],
       ['Prescribed CPCB Standard:', `${daytimeLimit.toFixed(1)} dB(A) (Daytime Max Permissible)`],
       ['Statutory Violation Margin:', `+${excessDb.toFixed(1)} dB(A) EXCEEDANCE`],
@@ -159,6 +159,15 @@ export class ComplaintPdfService {
         color: isBreach ? alertRed : black,
       });
       y -= 15;
+    });
+
+    // Acoustic standard disclosure
+    page.drawText('*Acoustic Averaging Note: Arithmetic decibel average reported. Continuous LAeq integration was not recorded.', {
+      x: 55,
+      y: y + 2,
+      size: 7,
+      font: fontRegular,
+      color: slateLight,
     });
     y -= 15;
 

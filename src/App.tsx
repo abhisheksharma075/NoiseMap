@@ -7,10 +7,12 @@ import { MapView } from './components/map/MapView';
 import { IncidentsView } from './components/incidents/IncidentsView';
 import { EvidenceView } from './components/evidence/EvidenceView';
 import { ProfileView } from './components/profile/ProfileView';
+import { CopilotView } from './components/copilot/CopilotView';
 import { ComplaintGeneratorModal } from './components/evidence/ComplaintGeneratorModal';
 import { DemoSimulatorModal } from './components/layout/DemoSimulatorModal';
 import { InstallPromptBanner } from './components/layout/InstallPromptBanner';
 import { NoiseReading, NoiseIncident, UserPin, UserStreak } from './types';
+import { MapActionPayload, ComplaintDraftPayload } from './types/copilot';
 import { IncidentEngine } from './services/incidentEngine';
 import { NotificationService } from './services/notificationService';
 import { NoiseDataService } from './services/noiseDataService';
@@ -21,7 +23,7 @@ export const App: React.FC = () => {
     try {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab') as TabType;
-      if (tabParam && ['home', 'measure', 'map', 'incidents', 'evidence', 'profile'].includes(tabParam)) {
+      if (tabParam && ['home', 'measure', 'map', 'incidents', 'evidence', 'profile', 'copilot'].includes(tabParam)) {
         return tabParam;
       }
     } catch (e) {
@@ -31,6 +33,8 @@ export const App: React.FC = () => {
   });
   const [modalIncident, setModalIncident] = useState<NoiseIncident | null>(null);
   const [isSimulatorOpen, setIsSimulatorOpen] = useState<boolean>(false);
+  const [selectedIncident, setSelectedIncident] = useState<NoiseIncident | null>(null);
+  const [selectedGrid, setSelectedGrid] = useState<string | null>(null);
   
   // Persistent readings store loaded synchronously on boot
   const [readings, setReadings] = useState<NoiseReading[]>(() =>
@@ -107,14 +111,77 @@ export const App: React.FC = () => {
     });
   };
 
+  const handleExecuteMapAction = (action: MapActionPayload) => {
+    if (action.type === 'focus_location' || action.type === 'show_incident') {
+      setActiveTab('map');
+      if (action.params.incident_id) {
+        const found = incidents.find(
+          (i) => i.id === action.params.incident_id || i.grid_id === action.params.incident_id
+        );
+        if (found) {
+          setSelectedIncident(found);
+          setSelectedGrid(found.grid_id);
+        }
+      } else if (action.params.lat && action.params.lng) {
+        setSelectedGrid(`${action.params.lat.toFixed(3)}_${action.params.lng.toFixed(3)}`);
+      }
+    } else if (action.type === 'open_incident_details') {
+      const found = incidents.find(
+        (i) => i.id === action.params.incident_id || i.grid_id === action.params.incident_id
+      );
+      if (found) {
+        setModalIncident(found);
+      } else {
+        setActiveTab('incidents');
+      }
+    }
+  };
+
+  const handleReviewComplaintDraft = (draft: ComplaintDraftPayload) => {
+    // If draft links to an existing verified incident, open that directly
+    let targetIncident = incidents.find(
+      (i) => i.id === draft.incidentId || i.grid_id === draft.incidentId
+    );
+
+    if (!targetIncident) {
+      // Create a structured pre-filled incident instance for citizen verification
+      const fallbackGrid = draft.locationName.includes('_')
+        ? draft.locationName
+        : readings[0]?.grid_id || '26.144_91.736';
+
+      targetIncident = {
+        id: draft.incidentId || `draft_${Date.now().toString(16)}`,
+        grid_id: fallbackGrid,
+        center_lat: readings[0]?.lat || 26.144,
+        center_lng: readings[0]?.lng || 91.736,
+        location_name: draft.locationName,
+        started_at: new Date(Date.now() - 30 * 60000).toISOString(),
+        last_seen_at: new Date().toISOString(),
+        duration_min: 30,
+        avg_db: draft.averageDb || 74.0,
+        peak_db: draft.peakDb || 84.0,
+        reading_count: draft.contributorCount || 3,
+        unique_users: draft.contributorCount || 3,
+        dominant_source: (draft.dominantSource as any) || 'traffic',
+        evidence_score: draft.evidenceConfidenceScore || 80,
+        status: 'active',
+        created_at: new Date().toISOString(),
+      };
+    }
+
+    setModalIncident(targetIncident);
+  };
+
   return (
     <div className="min-h-screen min-h-[100dvh] bg-paper dark:bg-night-bg bg-field-grid text-graphite dark:text-night-text flex flex-col font-sans selection:bg-lime-signal selection:text-graphite transition-colors duration-150 antialiased">
       {/* Top Precision HUD Telemetry Header */}
       <Header
         currentGrid={readings[0]?.grid_id || "GEO_GRID: LOCATING..."}
         activeIncidentsCount={incidents.filter((i) => i.status === 'active').length}
+        isCopilotActive={activeTab === 'copilot'}
         onOpenDemoToolbar={() => setIsSimulatorOpen(true)}
         onNavigateHome={() => setActiveTab('home')}
+        onNavigateCopilot={() => setActiveTab('copilot')}
       />
 
       {/* PWA Install Promotion Banner */}
@@ -180,6 +247,17 @@ export const App: React.FC = () => {
             onUpdatePins={setPins}
             streak={streak}
             readings={readings}
+          />
+        )}
+
+        {activeTab === 'copilot' && (
+          <CopilotView
+            readings={readings}
+            incidents={incidents}
+            selectedIncident={selectedIncident}
+            selectedGrid={selectedGrid}
+            onExecuteMapAction={handleExecuteMapAction}
+            onReviewComplaintDraft={handleReviewComplaintDraft}
           />
         )}
       </main>

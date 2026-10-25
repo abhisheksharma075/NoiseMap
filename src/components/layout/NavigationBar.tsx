@@ -1,8 +1,8 @@
 import React from 'react';
-import { Home, Mic, Map, AlertTriangle, FileText, UserCheck } from 'lucide-react';
+import { Home, Mic, Map, AlertTriangle, FileText, UserCheck, Bot } from 'lucide-react';
 import { soundFeedback } from '../../services/soundFeedbackService';
 
-export type TabType = 'home' | 'measure' | 'map' | 'incidents' | 'evidence' | 'profile';
+export type TabType = 'home' | 'measure' | 'map' | 'incidents' | 'evidence' | 'profile' | 'copilot';
 
 interface NavigationBarProps {
   activeTab: TabType;
@@ -29,6 +29,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       icon: AlertTriangle,
       badge: hasActiveIncidents,
     },
+    { id: 'copilot' as TabType, label: 'COPILOT', icon: Bot },
     { id: 'evidence' as TabType, label: 'DOSSIER', icon: FileText },
     { id: 'profile' as TabType, label: 'CIVIC ID', icon: UserCheck },
   ];
@@ -37,9 +38,9 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
     <nav
       role="navigation"
       aria-label="Application Navigation"
-      className="fixed bottom-0 inset-x-0 mx-auto w-full max-w-lg z-50 bg-paper-soft/95 dark:bg-night-surface/95 backdrop-blur-xl border-t border-paper-border dark:border-night-border pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-1 px-2 shadow-field-lg transition-colors duration-150"
+      className="fixed bottom-0 inset-x-0 mx-auto w-full max-w-xl z-50 bg-paper-soft/95 dark:bg-night-surface/95 backdrop-blur-xl border-t border-paper-border dark:border-night-border pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] pt-1 px-1 sm:px-2 shadow-field-lg transition-colors duration-150"
     >
-      <div className="flex items-center justify-around gap-1">
+      <div className="flex items-center justify-around gap-0.5 sm:gap-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -53,14 +54,14 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 onClick={() => handleSelectTab(tab.id)}
                 aria-label="Start Acoustic Measurement"
                 aria-current={isActive ? 'page' : undefined}
-                className={`relative -top-2 flex flex-col items-center justify-center min-w-[52px] min-h-[52px] sm:min-w-[56px] sm:min-h-[56px] rounded-2xl transition-all duration-150 cursor-pointer select-none shadow-md ${
+                className={`relative -top-2 flex flex-col items-center justify-center min-w-[48px] min-h-[48px] sm:min-w-[54px] sm:min-h-[54px] rounded-2xl transition-all duration-150 cursor-pointer select-none shadow-md ${
                   isActive
                     ? 'bg-forest dark:bg-teal-600 text-paper dark:text-night-bg ring-2 ring-forest dark:ring-teal-signal scale-105 shadow-[0_0_15px_rgba(45,212,191,0.35)]'
                     : 'bg-forest hover:bg-forest-deep dark:bg-teal-700 dark:hover:bg-teal-600 text-[#FBF9F2] hover:scale-102'
                 }`}
               >
                 <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                <span className="text-[9px] font-mono font-bold tracking-tight mt-0.5 text-lime-signal dark:text-teal-200">
+                <span className="text-[8px] sm:text-[9px] font-mono font-bold tracking-tight mt-0.5 text-lime-signal dark:text-teal-200">
                   MEASURE
                 </span>
               </button>
@@ -74,14 +75,14 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               onClick={() => handleSelectTab(tab.id)}
               aria-label={tab.label}
               aria-current={isActive ? 'page' : undefined}
-              className={`relative flex flex-col items-center justify-center min-h-[48px] px-1.5 sm:px-2.5 rounded-xl transition-all duration-150 select-none cursor-pointer flex-1 ${
+              className={`relative flex flex-col items-center justify-center min-h-[46px] px-1 sm:px-2 rounded-xl transition-all duration-150 select-none cursor-pointer flex-1 min-w-0 ${
                 isActive
                   ? 'text-forest dark:text-teal-signal font-bold'
                   : 'text-graphite-secondary dark:text-night-secondary hover:text-graphite dark:hover:text-night-text'
               }`}
             >
               <div className="relative">
-                <Icon className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isActive ? 'scale-110' : ''}`} />
+                <Icon className={`w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform ${isActive ? 'scale-110' : ''}`} />
                 {tab.badge && (
                   <span className="absolute -top-1 -right-1.5 flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-terracotta dark:bg-rose-500 opacity-75"></span>
@@ -89,7 +90,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                   </span>
                 )}
               </div>
-              <span className={`text-[9px] sm:text-[10px] font-mono tracking-tight mt-1 transition-colors ${
+              <span className={`text-[8px] sm:text-[9px] font-mono tracking-tight mt-1 truncate transition-colors ${
                 isActive ? 'font-bold underline decoration-forest dark:decoration-teal-signal underline-offset-4' : 'font-medium'
               }`}>
                 {tab.label}

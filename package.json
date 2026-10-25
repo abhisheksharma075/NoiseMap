@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server/server.js",
+    "test:copilot": "node scripts/test-ai-copilot.js",
+    "test:provider": "node scripts/test-provider-connection.js",
+    "test:all": "node scripts/test-master-platform-verification.js && node scripts/test-provider-connection.js && node scripts/test-ai-copilot-stage2.js && node scripts/test-ai-copilot.js && node scripts/test-noise-activity-lifecycle.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

@@ -42,12 +42,16 @@ export class IncidentEngine {
     const FIFTEEN_MIN_MS = 15 * 60 * 1000;
 
     // Transition any previously active incidents whose evidence has aged out past 15 mins to 'resolved'
-    const activeIncidents = existingIncidents.map((inc) => {
+    // while attributing fine-grained lifecycle_state (active vs monitoring vs resolved)
+    const ONE_HOUR_MS = 60 * 60 * 1000;
+    const activeIncidents: NoiseIncident[] = existingIncidents.map((inc) => {
       const ageMs = now - new Date(inc.last_seen_at || inc.created_at).getTime();
+      const lifecycleState: 'active' | 'monitoring' | 'resolved' =
+        ageMs <= FIFTEEN_MIN_MS ? 'active' : ageMs <= ONE_HOUR_MS ? 'monitoring' : 'resolved';
       if (ageMs > FIFTEEN_MIN_MS && inc.status === 'active') {
-        return { ...inc, status: 'resolved' as const };
+        return { ...inc, status: 'resolved', lifecycle_state: lifecycleState };
       }
-      return inc;
+      return { ...inc, lifecycle_state: lifecycleState };
     });
 
     // Filter readings to recent temporal window (last 15 minutes)
@@ -128,6 +132,7 @@ export class IncidentEngine {
           dominant_source: dominantSource,
           evidence_score: breakdown.totalScore,
           status: 'active',
+          lifecycle_state: 'active',
           created_at: new Date(minTime).toISOString(),
           reading_ids: readingIds,
         };

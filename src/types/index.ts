@@ -38,6 +38,7 @@ export interface NoiseIncident {
   dominant_source: NoiseSourceType;
   evidence_score: number; // 0-100%
   status: 'active' | 'resolved';
+  lifecycle_state?: 'active' | 'monitoring' | 'resolved';
   created_at: string;
   reading_ids?: string[];
 }
