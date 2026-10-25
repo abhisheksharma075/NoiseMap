@@ -38,9 +38,17 @@ export class IncidentEngine {
     readings: NoiseReading[],
     existingIncidents: NoiseIncident[] = []
   ): NoiseIncident[] {
-    const activeIncidents = [...existingIncidents];
     const now = Date.now();
     const FIFTEEN_MIN_MS = 15 * 60 * 1000;
+
+    // Transition any previously active incidents whose evidence has aged out past 15 mins to 'resolved'
+    const activeIncidents = existingIncidents.map((inc) => {
+      const ageMs = now - new Date(inc.last_seen_at || inc.created_at).getTime();
+      if (ageMs > FIFTEEN_MIN_MS && inc.status === 'active') {
+        return { ...inc, status: 'resolved' as const };
+      }
+      return inc;
+    });
 
     // Filter readings to recent temporal window (last 15 minutes)
     const recentReadings = readings.filter((r) => {

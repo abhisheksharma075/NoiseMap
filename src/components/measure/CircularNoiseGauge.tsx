@@ -107,6 +107,7 @@ export const CircularNoiseGauge: React.FC<CircularNoiseGaugeProps> = ({
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
             className="transform rotate-[150deg] origin-center transition-all duration-150 ease-out"
+            style={{ filter: isSampling ? 'drop-shadow(0 0 8px rgba(45, 212, 191, 0.6))' : 'none' }}
           />
 
           {/* Precision calibration tick ring */}
@@ -118,10 +119,19 @@ export const CircularNoiseGauge: React.FC<CircularNoiseGaugeProps> = ({
             stroke="currentColor"
             strokeWidth="1"
             strokeDasharray="4 6"
-            strokeOpacity="0.4"
+            strokeOpacity="0.3"
             className="text-stone dark:text-night-secondary pointer-events-none"
           />
         </svg>
+
+        {/* Static Scale Marks around Gauge */}
+        <div className="absolute inset-0 pointer-events-none select-none text-[9px] font-mono font-bold text-stone-400 dark:text-slate-500">
+          <span className="absolute bottom-5 left-10">30dB</span>
+          <span className="absolute top-16 left-6 text-emerald-600 dark:text-emerald-400">50dB</span>
+          <span className="absolute top-3 inset-x-0 text-center text-amber-600 dark:text-amber-400">70dB</span>
+          <span className="absolute top-16 right-6 text-orange-600 dark:text-orange-400">85dB</span>
+          <span className="absolute bottom-5 right-8 text-rose-600 dark:text-rose-400">120dB</span>
+        </div>
 
         {/* Center Companion Acoustic Avatar */}
         <div className="flex flex-col items-center justify-center z-10">
@@ -138,25 +148,25 @@ export const CircularNoiseGauge: React.FC<CircularNoiseGaugeProps> = ({
             {isSampling ? (
               <div className="flex flex-col items-center">
                 <div className="flex items-baseline justify-center">
-                  <span className="text-3xl sm:text-4xl font-black tracking-tight text-lime-signal font-mono animate-pulse">
+                  <span className="text-4xl sm:text-5xl font-black tracking-tight text-teal-signal dark:text-teal-signal font-mono animate-pulse drop-shadow-[0_0_12px_rgba(45,212,191,0.5)]">
                     {instantDb > 0 ? instantDb.toFixed(1) : '--.-'}
                   </span>
-                  <span className="text-xs font-semibold text-lime-signal/80 ml-1">dB(A)</span>
+                  <span className="text-xs font-bold text-teal-signal ml-1">dB(A)</span>
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#141E17] border border-lime-signal/40 text-lime-signal text-[10px] font-bold mt-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-lime-signal animate-ping" />
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-night-card border border-teal-signal/40 text-teal-signal text-[10px] font-bold mt-1.5 shadow-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-signal animate-ping" />
                   <span>INTEGRATING Leq · {countdown}s</span>
                 </div>
               </div>
             ) : decibels > 0 ? (
               <div className="flex flex-col items-center leading-none">
                 <div className="flex items-baseline justify-center">
-                  <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-graphite dark:text-night-text font-sans">
+                  <span className="text-4xl sm:text-5xl font-extrabold tracking-tight text-graphite dark:text-night-text font-sans">
                     {decibels.toFixed(1)}
                   </span>
-                  <span className="text-xs font-semibold text-graphite-secondary dark:text-night-secondary ml-1">dB(A)</span>
+                  <span className="text-xs font-bold text-graphite-secondary dark:text-night-secondary ml-1">dB(A)</span>
                 </div>
-                <span className={`text-[10px] font-bold uppercase tracking-wider mt-1 ${classification?.textColorClass || 'text-forest dark:text-lime-signal'}`}>
+                <span className={`text-[10px] font-bold uppercase tracking-wider mt-1 px-2.5 py-0.5 rounded-full border border-current/30 ${classification?.textColorClass || 'text-forest dark:text-teal-signal'}`}>
                   {classification?.shortLabel || 'MEASURED'}
                 </span>
               </div>
@@ -174,18 +184,25 @@ export const CircularNoiseGauge: React.FC<CircularNoiseGaugeProps> = ({
         </div>
       </div>
 
-      {/* Auxiliary Peak Readout & Calibration Badge */}
-      <div className="mt-3 flex items-center justify-center gap-3 text-[11px] font-mono text-graphite-secondary dark:text-night-secondary">
+      {/* Auxiliary Peak & Average Telemetry Strip */}
+      <div className="mt-3 flex items-center justify-center gap-2 sm:gap-3 text-[11px] font-mono text-graphite-secondary dark:text-night-secondary flex-wrap">
+        {decibels > 0 && (
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-paper-soft dark:bg-night-card border border-paper-border dark:border-night-border shadow-xs">
+            <span className="text-stone-400">Leq:</span>
+            <strong className="text-graphite dark:text-night-text">{decibels.toFixed(1)} dB</strong>
+          </div>
+        )}
+
         {peakDb > 0 && (
-          <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-paper-100 dark:bg-night-800 border border-paper-border dark:border-night-border">
-            <span>PEAK:</span>
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-paper-soft dark:bg-night-card border border-paper-border dark:border-night-border shadow-xs">
+            <span className="text-stone-400">PEAK:</span>
             <strong className="text-terracotta dark:text-[#E2886A]">{peakDb.toFixed(1)} dB</strong>
           </div>
         )}
 
-        <div className="px-2.5 py-1 rounded-lg bg-paper-100 dark:bg-night-800 border border-paper-border dark:border-night-border text-[10px]">
-          <span>DEMO BAND: </span>
-          <strong className="text-graphite dark:text-night-text font-semibold">
+        <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-paper-soft dark:bg-night-card border border-paper-border dark:border-night-border text-[10px]">
+          <span className="text-stone-400">CLASSIFICATION:</span>
+          <strong className="text-teal-DEFAULT dark:text-teal-signal font-semibold">
             {decibels > 0 ? (decibels < 50 ? 'LOW (<50)' : decibels < 70 ? 'MODERATE (50-70)' : 'HIGH (≥70)') : 'STANDBY'}
           </strong>
         </div>

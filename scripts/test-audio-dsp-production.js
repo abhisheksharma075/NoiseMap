@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { AudioDspEngine } from '/Users/abhishekkumar/Desktop/NoiseMap/src/services/audioDspService.ts';
+import { AudioDspEngine } from '../src/services/audioDspService.ts';
 
 // Set up mock Web Audio and MediaDevices environments
 class MockTrack {

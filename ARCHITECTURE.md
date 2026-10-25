@@ -46,7 +46,7 @@ flowchart TD
 
     subgraph T5["Tier 5: Real-Time & Civic Outputs"]
         REALTIME["WebSocket Sync Channel<br/>(<200ms Pub/Sub)"]
-        MAP["Leaflet Acoustic Heatmap<br/>(CartoDB Dark Matter)"]
+        MAP["Leaflet Acoustic Heatmap<br/>(OpenStreetMap Standard Zero-Key Default)"]
         ALERT_SYS["Geo-Pinned Push Notifications"]
         PDF_SYS["CPCB Statutory PDF Generator<br/>(pdf-lib Legal Dossier)"]
     end

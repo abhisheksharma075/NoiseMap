@@ -55,12 +55,12 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 aria-current={isActive ? 'page' : undefined}
                 className={`relative -top-2 flex flex-col items-center justify-center min-w-[52px] min-h-[52px] sm:min-w-[56px] sm:min-h-[56px] rounded-2xl transition-all duration-150 cursor-pointer select-none shadow-md ${
                   isActive
-                    ? 'bg-forest text-lime-signal ring-2 ring-forest dark:ring-lime-signal scale-105'
-                    : 'bg-forest hover:bg-forest-deep text-[#FBF9F2] hover:scale-102'
+                    ? 'bg-forest dark:bg-teal-600 text-paper dark:text-night-bg ring-2 ring-forest dark:ring-teal-signal scale-105 shadow-[0_0_15px_rgba(45,212,191,0.35)]'
+                    : 'bg-forest hover:bg-forest-deep dark:bg-teal-700 dark:hover:bg-teal-600 text-[#FBF9F2] hover:scale-102'
                 }`}
               >
                 <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                <span className="text-[9px] font-mono font-bold tracking-tight mt-0.5 text-lime-signal">
+                <span className="text-[9px] font-mono font-bold tracking-tight mt-0.5 text-lime-signal dark:text-teal-200">
                   MEASURE
                 </span>
               </button>
@@ -76,7 +76,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               aria-current={isActive ? 'page' : undefined}
               className={`relative flex flex-col items-center justify-center min-h-[48px] px-1.5 sm:px-2.5 rounded-xl transition-all duration-150 select-none cursor-pointer flex-1 ${
                 isActive
-                  ? 'text-forest dark:text-lime-signal font-bold'
+                  ? 'text-forest dark:text-teal-signal font-bold'
                   : 'text-graphite-secondary dark:text-night-secondary hover:text-graphite dark:hover:text-night-text'
               }`}
             >
@@ -84,13 +84,13 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 <Icon className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isActive ? 'scale-110' : ''}`} />
                 {tab.badge && (
                   <span className="absolute -top-1 -right-1.5 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-terracotta opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-terracotta"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-terracotta dark:bg-rose-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-terracotta dark:bg-rose-500"></span>
                   </span>
                 )}
               </div>
               <span className={`text-[9px] sm:text-[10px] font-mono tracking-tight mt-1 transition-colors ${
-                isActive ? 'font-bold underline decoration-forest dark:decoration-lime-signal underline-offset-4' : 'font-medium'
+                isActive ? 'font-bold underline decoration-forest dark:decoration-teal-signal underline-offset-4' : 'font-medium'
               }`}>
                 {tab.label}
               </span>

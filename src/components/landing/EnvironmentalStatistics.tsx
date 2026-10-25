@@ -32,38 +32,38 @@ export const EnvironmentalStatistics: React.FC<EnvironmentalStatisticsProps> = (
       label: 'RECORDED NOISE SAMPLES',
       value: stats.sampleCount,
       subtext: 'Decibels computed in transient RAM',
-      icon: <Activity className="w-5 h-5 text-forest dark:text-lime-signal" />,
+      icon: <Activity className="w-5 h-5 text-forest dark:text-teal-signal" />,
       badge: 'PERSISTED LOCALLY',
-      badgeClass: 'text-forest dark:text-lime-signal bg-forest-subtle dark:bg-forest/30 border-forest/30',
+      badgeClass: 'text-forest dark:text-teal-signal bg-forest-subtle dark:bg-teal-500/10 border-forest/30 dark:border-teal-500/30',
     },
     {
       id: 'sectors',
       label: 'MONITORED GRID SECTORS',
       value: stats.uniqueSectors,
       subtext: '~100m spatial privacy sectors',
-      icon: <MapPin className="w-5 h-5 text-olive dark:text-lime-signal" />,
+      icon: <MapPin className="w-5 h-5 text-olive dark:text-teal-signal" />,
       badge: '3-DECIMAL QUANTIZED',
-      badgeClass: 'text-olive dark:text-lime-signal bg-olive-subtle dark:bg-olive/20 border-olive/30',
+      badgeClass: 'text-olive dark:text-teal-300 bg-olive-subtle dark:bg-night-card border-olive/30 dark:border-night-border',
     },
     {
       id: 'incidents',
-      label: 'ACTIVE INCIDENTS',
+      label: 'ACTIVE HOTSPOTS',
       value: stats.activeIncidents,
       subtext: 'Corroborated by 3+ citizen nodes',
-      icon: <AlertTriangle className="w-5 h-5 text-terracotta" />,
+      icon: <AlertTriangle className="w-5 h-5 text-terracotta dark:text-rose-400" />,
       badge: stats.activeIncidents > 0 ? 'STATUTORY BREACH' : 'WITHIN CPCB LIMITS',
       badgeClass: stats.activeIncidents > 0
-        ? 'text-terracotta bg-terracotta-subtle dark:bg-terracotta/25 border-terracotta/30'
-        : 'text-forest dark:text-lime-signal bg-forest-subtle dark:bg-forest/30 border-forest/30',
+        ? 'text-terracotta dark:text-rose-300 bg-terracotta-subtle dark:bg-rose-950/40 border-terracotta/30 dark:border-rose-800/60'
+        : 'text-forest dark:text-teal-signal bg-forest-subtle dark:bg-teal-500/10 border-forest/30 dark:border-teal-500/30',
     },
     {
       id: 'contributors',
       label: 'COMMUNITY CONTRIBUTORS',
       value: stats.uniqueContributors,
       subtext: 'Anonymous crypto session tokens',
-      icon: <Users className="w-5 h-5 text-forest-deep dark:text-lime-signal" />,
+      icon: <Users className="w-5 h-5 text-forest-deep dark:text-teal-signal" />,
       badge: 'ZERO IDENTIFIERS',
-      badgeClass: 'text-graphite dark:text-night-text bg-paper-border/50 dark:bg-night-border border-paper-border',
+      badgeClass: 'text-graphite dark:text-night-text bg-paper-border/50 dark:bg-night-surface border-paper-border dark:border-night-border',
     },
   ];
 
@@ -73,7 +73,7 @@ export const EnvironmentalStatistics: React.FC<EnvironmentalStatisticsProps> = (
         {/* Section Heading */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2 text-forest dark:text-lime-signal font-mono text-xs tracking-wider">
+            <div className="flex items-center gap-2 text-forest dark:text-teal-signal font-mono text-xs tracking-wider">
               <Database className="w-3.5 h-3.5" />
               <span>FIELD OBSERVATION TELEMETRY</span>
             </div>
@@ -83,7 +83,7 @@ export const EnvironmentalStatistics: React.FC<EnvironmentalStatisticsProps> = (
           </div>
 
           <div className="flex items-center gap-2 text-xs font-mono text-graphite-secondary dark:text-night-secondary">
-            <ShieldCheck className="w-4 h-4 text-forest dark:text-lime-signal" />
+            <ShieldCheck className="w-4 h-4 text-forest dark:text-teal-signal" />
             <span>Bound strictly to verified local storage</span>
           </div>
         </div>
@@ -93,10 +93,10 @@ export const EnvironmentalStatistics: React.FC<EnvironmentalStatisticsProps> = (
           {cards.map((card) => (
             <div
               key={card.id}
-              className="p-4 sm:p-5 rounded-2xl bg-paper dark:bg-night-bg border border-paper-border dark:border-night-border shadow-field transition-all duration-150 flex flex-col justify-between font-mono"
+              className="p-4 sm:p-5 rounded-2xl bg-paper dark:bg-night-card border border-paper-border dark:border-night-border hover:dark:border-teal-500/30 shadow-field transition-all duration-200 flex flex-col justify-between font-mono group"
             >
               <div className="flex items-center justify-between pb-3 border-b border-paper-border/60 dark:border-night-border/60">
-                <div className="p-2 rounded-xl bg-paper-soft dark:bg-night-surface border border-paper-border dark:border-night-border">
+                <div className="p-2 rounded-xl bg-paper-soft dark:bg-night-surface border border-paper-border dark:border-night-border group-hover:scale-105 transition-transform">
                   {card.icon}
                 </div>
                 <span className={`text-[10px] px-2 py-0.5 rounded border uppercase font-bold tracking-wider ${card.badgeClass}`}>
@@ -118,6 +118,17 @@ export const EnvironmentalStatistics: React.FC<EnvironmentalStatisticsProps> = (
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Calibration & Class 2 Privacy Guidance Banner */}
+        <div className="p-3.5 rounded-xl bg-paper dark:bg-night-card/70 border border-paper-border dark:border-night-border text-xs font-mono text-graphite-secondary dark:text-night-muted flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-forest dark:bg-teal-signal"></span>
+            <span><strong>CALIBRATION STATUS:</strong> Smartphone audio engines serve as indicative Class 2 screening meters.</span>
+          </div>
+          <span className="text-[11px] text-stone-500 dark:text-night-secondary">
+            Zero raw audio retained · IEC 61672 screening standard
+          </span>
         </div>
       </div>
     </section>

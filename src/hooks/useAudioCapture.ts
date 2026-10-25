@@ -2,6 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { audioDspEngine, AudioMetrics } from '../services/audioDspService';
 import { locationService, QuantizedLocation } from '../services/locationService';
 import { soundFeedback } from '../services/soundFeedbackService';
+import { NoiseSpikeDetector, NoiseSpikeEvent } from '../services/noiseSpikeDetectionService';
+import { audioDiagnosticsService, AudioDiagnosticInfo } from '../services/audioDiagnosticsService';
+import { MicrophonePrivacyState } from '../components/audio/MicrophonePrivacyIndicator';
 
 export interface UseAudioCaptureReturn {
   isSampling: boolean;
@@ -14,6 +17,10 @@ export interface UseAudioCaptureReturn {
   location: QuantizedLocation | null;
   error: string | null;
   permissionDenied: boolean;
+  privacyState: MicrophonePrivacyState;
+  diagnosticInfo: AudioDiagnosticInfo | null;
+  spikeEvents: NoiseSpikeEvent[];
+  clearSpikeEvents: () => void;
   startSampling: () => Promise<void>;
   stopSampling: () => void;
   reset: () => void;
@@ -30,12 +37,20 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
   );
   const [error, setError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState<boolean>(false);
+  const [privacyState, setPrivacyState] = useState<MicrophonePrivacyState>('inactive');
+  const [diagnosticInfo, setDiagnosticInfo] = useState<AudioDiagnosticInfo | null>(null);
+  const [spikeEvents, setSpikeEvents] = useState<NoiseSpikeEvent[]>([]);
 
   const countdownIntervalRef = useRef<number | null>(null);
   const metricsIntervalRef = useRef<number | null>(null);
   const isSamplingRef = useRef<boolean>(false);
   const isStartingRef = useRef<boolean>(false);
   const startupGenerationRef = useRef<number>(0);
+  const spikeDetectorRef = useRef<NoiseSpikeDetector>(new NoiseSpikeDetector());
+
+  const clearSpikeEvents = useCallback(() => {
+    setSpikeEvents([]);
+  }, []);
 
   const stopSampling = useCallback(() => {
     startupGenerationRef.current++;
@@ -55,6 +70,7 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
 
     if (!isSamplingRef.current && !audioDspEngine.isActive()) {
       setIsSampling(false);
+      setPrivacyState('stopped');
       return;
     }
 
@@ -75,6 +91,7 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
     setIsSampling(false);
     setIsComplete(true);
     setAnalyserNode(null);
+    setPrivacyState('stopped');
   }, []);
 
   const startSampling = useCallback(async () => {
@@ -91,11 +108,14 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       soundFeedback.setRecordingActive(true);
 
       setError(null);
+      setDiagnosticInfo(null);
       setPermissionDenied(false);
       setIsComplete(false);
       setCountdown(10);
       setMetrics({ instantDb: 0, avgDb: 0, peakDb: 0 });
+      setPrivacyState('requesting_permission');
       audioDspEngine.reset();
+      spikeDetectorRef.current.reset();
 
       // Start geolocation concurrently WITHOUT awaiting to protect user gesture on iOS Safari
       locationService
@@ -131,18 +151,28 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       isSamplingRef.current = true;
       setAnalyserNode(analyser);
       setIsSampling(true);
+      setPrivacyState('active');
 
       // Immediately take a first sample reading
       const initialMetrics = audioDspEngine.getMetrics();
       if (initialMetrics.avgDb > 0) {
         setMetrics(initialMetrics);
+        spikeDetectorRef.current.processSample(initialMetrics.instantDb);
       }
 
-      // Poll real-time decibel metrics at 20fps for smooth needle animation
+      // Poll real-time decibel metrics at 20fps for smooth needle animation & spike detection
       metricsIntervalRef.current = window.setInterval(() => {
         if (!isSamplingRef.current) return;
         const current = audioDspEngine.getMetrics();
         setMetrics(current);
+
+        // Evaluate transient spikes from live decibel readings
+        if (current.instantDb > 0) {
+          const spikeEvent = spikeDetectorRef.current.processSample(current.instantDb);
+          if (spikeEvent) {
+            setSpikeEvents((prev) => [spikeEvent, ...prev.slice(0, 29)]);
+          }
+        }
       }, 50);
 
       // 10-second countdown timer
@@ -171,14 +201,23 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       const errObj = err as { name?: string; message?: string };
       if (errObj.name === 'AbortError') {
         // Cleanly superseded or cancelled
+        setPrivacyState('stopped');
         return;
       }
-      if (errObj.name === 'NotAllowedError' || errObj.name === 'PermissionDeniedError') {
+
+      const diag = audioDiagnosticsService.diagnoseError(err);
+      setDiagnosticInfo(diag);
+      setError(diag.message);
+
+      if (diag.category === 'permission_denied') {
         setPermissionDenied(true);
-        setError("Microphone permission was denied. Please allow microphone access in your browser settings to sample noise.");
+        setPrivacyState('permission_denied');
+      } else if (diag.category === 'device_unavailable') {
+        setPrivacyState('device_unavailable');
       } else {
-        setError(errObj.message || "Failed to initialize Web Audio sensor.");
+        setPrivacyState('initialization_failed');
       }
+
       setIsSampling(false);
     }
   }, [stopSampling]);
@@ -200,12 +239,16 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
       audioDspEngine.stop();
     }
     audioDspEngine.reset();
+    spikeDetectorRef.current.reset();
+
     setIsSampling(false);
     setIsComplete(false);
     setCountdown(10);
     setMetrics({ instantDb: 0, avgDb: 0, peakDb: 0 });
     setAnalyserNode(null);
     setError(null);
+    setDiagnosticInfo(null);
+    setPrivacyState('inactive');
   }, []);
 
   useEffect(() => {
@@ -232,6 +275,10 @@ export const useAudioCapture = (): UseAudioCaptureReturn => {
     location,
     error,
     permissionDenied,
+    privacyState,
+    diagnosticInfo,
+    spikeEvents,
+    clearSpikeEvents,
     startSampling,
     stopSampling,
     reset,

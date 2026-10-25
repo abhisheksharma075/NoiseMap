@@ -38,12 +38,12 @@ export const LiveWaveformVisualizer: React.FC<LiveWaveformVisualizerProps> = ({
       const width = canvas.width;
       const height = canvas.height;
 
-      // Clean canvas background
-      ctx.fillStyle = isDark ? '#1C231E' : '#F4F1E8';
+      // Clean canvas background (Dark navy #0A0F1D / Daylight warm paper #F4F1E8)
+      ctx.fillStyle = isDark ? '#0A0F1D' : '#F4F1E8';
       ctx.fillRect(0, 0, width, height);
 
       // Subtle horizontal center grid guideline
-      ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(37, 41, 34, 0.08)';
+      ctx.strokeStyle = isDark ? 'rgba(51, 65, 85, 0.4)' : 'rgba(37, 41, 34, 0.08)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, height / 2);
@@ -53,8 +53,10 @@ export const LiveWaveformVisualizer: React.FC<LiveWaveformVisualizerProps> = ({
       if (analyserNode && isActive) {
         analyserNode.getByteTimeDomainData(dataArray);
 
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = isDark ? '#D5E66B' : '#354C3C';
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = isDark ? '#2DD4BF' : '#0D9488';
+        ctx.shadowBlur = isDark ? 8 : 0;
+        ctx.shadowColor = isDark ? 'rgba(45, 212, 191, 0.75)' : 'transparent';
         ctx.beginPath();
 
         const sliceWidth = width / bufferLength;
@@ -75,10 +77,11 @@ export const LiveWaveformVisualizer: React.FC<LiveWaveformVisualizerProps> = ({
 
         ctx.lineTo(width, height / 2);
         ctx.stroke();
+        ctx.shadowBlur = 0;
       } else {
         // Flat standby beam
         ctx.lineWidth = 1.5;
-        ctx.strokeStyle = isDark ? 'rgba(213, 230, 107, 0.35)' : 'rgba(53, 76, 60, 0.35)';
+        ctx.strokeStyle = isDark ? 'rgba(45, 212, 191, 0.3)' : 'rgba(13, 148, 136, 0.3)';
         ctx.beginPath();
         ctx.moveTo(0, height / 2);
         ctx.lineTo(width, height / 2);

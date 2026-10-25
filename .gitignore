@@ -35,3 +35,11 @@ scratch
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Local presentations and nested folders
+NoiseMap/
+*.pptx
+scripts/extracted_assets/
+scripts/generate_*.py
+scripts/test-sensitive-zones.js
+.env copy.example

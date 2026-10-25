@@ -46,9 +46,17 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({
   // Normal expected ambient baseline (typical city street)
   const baselineData = [44, 42, 40, 48, 56, 62, 60, 63, 65, 68, 58, 49];
 
+  const isUsingRealData = readings && readings.length > 0;
+
+  // Dynamically compute authentic peak decibels from recorded field data
+  const maxRecordedPeak = React.useMemo(() => {
+    if (!isUsingRealData) return 86.0;
+    return Math.round(Math.max(...readings.map((r) => r.db_peak || r.db_avg)) * 10) / 10;
+  }, [readings, isUsingRealData]);
+
   // Dynamically bucket real readings into the 12 two-hour time slots
   const todayMeasured = React.useMemo(() => {
-    if (!readings || readings.length === 0) {
+    if (!isUsingRealData) {
       return [45, 43, 42, 49, 58, 64, 62, 65, 78, 86, 82, 54];
     }
 
@@ -69,7 +77,7 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({
       const avg = 10 * Math.log10(energySum / bucket.length);
       return Math.round(avg * 10) / 10;
     });
-  }, [readings]);
+  }, [readings, isUsingRealData]);
 
   // CPCB Residential Daytime threshold line
   const cpcbThreshold = Array(12).fill(55);
@@ -78,20 +86,20 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({
     labels: hours,
     datasets: [
       {
-        label: "Dynamic Grid Noise (dB)",
+        label: isUsingRealData ? "Live Measured Noise (dB)" : "Indicative Ambient Profile (dB)",
         data: todayMeasured,
-        borderColor: '#C46E50',
-        backgroundColor: 'rgba(196, 110, 80, 0.15)',
+        borderColor: '#2DD4BF',
+        backgroundColor: 'rgba(45, 212, 191, 0.15)',
         tension: 0.35,
         fill: true,
-        pointBackgroundColor: '#C46E50',
+        pointBackgroundColor: '#2DD4BF',
         pointRadius: 4,
         pointHoverRadius: 6,
       },
       {
         label: 'Historical Baseline (dB)',
         data: baselineData,
-        borderColor: isNight ? '#D5E66B' : '#354C3C',
+        borderColor: isNight ? '#64748B' : '#94A3B8',
         backgroundColor: 'transparent',
         borderDash: [4, 4],
         tension: 0.35,
@@ -100,9 +108,9 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({
       {
         label: 'CPCB Daytime Limit (55 dB)',
         data: cpcbThreshold,
-        borderColor: '#798263',
+        borderColor: '#F43F5E',
         backgroundColor: 'transparent',
-        borderDash: [2, 2],
+        borderDash: [3, 3],
         pointRadius: 0,
       },
     ],
@@ -115,30 +123,30 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({
       legend: {
         position: 'top' as const,
         labels: {
-          color: isNight ? '#F4F1E8' : '#252922',
-          font: { family: 'JetBrains Mono', size: 10 },
+          color: isNight ? '#E2E8F0' : '#1E293B',
+          font: { family: 'JetBrains Mono, monospace', size: 10 },
         },
       },
       tooltip: {
-        backgroundColor: isNight ? '#1C231E' : '#FBF9F2',
-        borderColor: isNight ? '#3C443D' : '#DCD9CE',
+        backgroundColor: isNight ? '#0F172A' : '#FBF9F2',
+        borderColor: isNight ? '#1E293B' : '#DCD9CE',
         borderWidth: 1,
-        titleColor: isNight ? '#F4F1E8' : '#252922',
-        bodyColor: isNight ? '#D5E66B' : '#354C3C',
-        titleFont: { family: 'JetBrains Mono' },
-        bodyFont: { family: 'JetBrains Mono' },
+        titleColor: isNight ? '#F8FAFC' : '#0F172A',
+        bodyColor: '#2DD4BF',
+        titleFont: { family: 'JetBrains Mono, monospace' },
+        bodyFont: { family: 'JetBrains Mono, monospace' },
       },
     },
     scales: {
       x: {
-        grid: { color: isNight ? 'rgba(255, 255, 255, 0.06)' : 'rgba(37, 41, 34, 0.06)' },
-        ticks: { color: isNight ? '#A1A598' : '#74766C', font: { family: 'JetBrains Mono', size: 10 } },
+        grid: { color: isNight ? 'rgba(255, 255, 255, 0.05)' : 'rgba(37, 41, 34, 0.06)' },
+        ticks: { color: isNight ? '#94A3B8' : '#74766C', font: { family: 'JetBrains Mono, monospace', size: 10 } },
       },
       y: {
         min: 30,
         max: 100,
-        grid: { color: isNight ? 'rgba(255, 255, 255, 0.06)' : 'rgba(37, 41, 34, 0.06)' },
-        ticks: { color: isNight ? '#A1A598' : '#74766C', font: { family: 'JetBrains Mono', size: 10 } },
+        grid: { color: isNight ? 'rgba(255, 255, 255, 0.05)' : 'rgba(37, 41, 34, 0.06)' },
+        ticks: { color: isNight ? '#94A3B8' : '#74766C', font: { family: 'JetBrains Mono, monospace', size: 10 } },
       },
     },
   };
@@ -146,18 +154,31 @@ export const NoiseTimelineChart: React.FC<NoiseTimelineChartProps> = ({
   return (
     <VectorCard
       label="TEMPORAL NOISE ANALYSIS · 24-HOUR DIURNAL CURVE"
-      tag="CHART.JS TELEMETRY"
-      variant="forest"
-      className={`space-y-4 shadow-md ${className}`}
+      tag={isUsingRealData ? "AUTHENTIC FIELD TELEMETRY" : "INDICATIVE BASELINE REFERENCE"}
+      variant={isUsingRealData ? "forest" : "olive"}
+      className={`space-y-4 shadow-md bg-paper dark:bg-night-card border border-paper-border dark:border-night-border ${className}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-mono">
         <div>
-          <h4 className="text-sm font-bold text-graphite-900 dark:text-night-text font-serif">Before vs. After Violation Timeline</h4>
-          <p className="text-xs text-stone-600 dark:text-night-muted">Proves continuous breach patterns over statutory daytime limits</p>
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-bold text-graphite-900 dark:text-night-text font-serif">Diurnal Noise Exposure Timeline</h4>
+            <span className={`text-[9px] px-2 py-0.5 rounded uppercase font-semibold ${
+              isUsingRealData
+                ? 'bg-emerald-50 dark:bg-teal-500/10 text-emerald-700 dark:text-teal-signal border border-emerald-300 dark:border-teal-500/30'
+                : 'bg-paper-200 dark:bg-night-surface text-stone-600 dark:text-night-muted border border-paper-border dark:border-night-border'
+            }`}>
+              {isUsingRealData ? `${readings.length} Samples` : 'Awaiting Field Samples'}
+            </span>
+          </div>
+          <p className="text-xs text-stone-600 dark:text-night-muted mt-0.5">
+            {isUsingRealData
+              ? 'Derived from authenticated on-device acoustic measurements'
+              : 'Indicative reference baseline profile before real user recordings'}
+          </p>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="px-2.5 py-1 rounded-full bg-terracotta-100 dark:bg-terracotta-950/60 border border-terracotta-300 dark:border-terracotta-700 text-terracotta-800 dark:text-terracotta-300 font-bold">
-            MAX PEAK: 86 dB
+          <span className="px-2.5 py-1 rounded-full bg-paper-100 dark:bg-night-surface border border-paper-border dark:border-night-border text-graphite dark:text-night-text font-bold">
+            MAX PEAK: <strong className="text-terracotta dark:text-rose-400">{maxRecordedPeak.toFixed(1)} dB</strong>
           </span>
         </div>
       </div>

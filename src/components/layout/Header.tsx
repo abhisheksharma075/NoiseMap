@@ -37,15 +37,15 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-1.5 sm:gap-2.5 font-mono text-xs">
           {/* Active Hazard Counter */}
           {activeIncidentsCount > 0 && (
-            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-terracotta-subtle dark:bg-terracotta/20 border border-terracotta/30 text-terracotta dark:text-[#E2886A] text-[10px] sm:text-xs font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-terracotta animate-pulse"></span>
-              <span>{activeIncidentsCount} <span className="hidden xs:inline">HAZARD</span></span>
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-terracotta-subtle dark:bg-rose-950/40 border border-terracotta/30 dark:border-rose-800/60 text-terracotta dark:text-rose-300 text-[10px] sm:text-xs font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-terracotta dark:bg-rose-500 animate-pulse"></span>
+              <span>{activeIncidentsCount} <span className="hidden xs:inline">HOTSPOTS</span></span>
             </div>
           )}
 
           {/* Grid Snap Badge */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-paper dark:bg-night-bg border border-paper-border dark:border-night-border text-graphite-secondary dark:text-night-secondary text-xs">
-            <Navigation className="w-3.5 h-3.5 text-forest dark:text-lime-signal" />
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-paper dark:bg-night-card border border-paper-border dark:border-night-border text-graphite-secondary dark:text-night-secondary text-xs">
+            <Navigation className="w-3.5 h-3.5 text-forest dark:text-teal-signal" />
             <span className="text-graphite dark:text-night-text font-semibold">{currentGrid}</span>
           </div>
 
@@ -60,10 +60,10 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Switch to Daylight Field Mode' : 'Switch to Night Monitoring Mode'}
             title={theme === 'dark' ? 'Switch to Daylight Field Mode' : 'Switch to Night Monitoring Mode'}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-paper-border dark:border-night-border bg-paper dark:bg-night-bg text-graphite dark:text-night-text hover:bg-paper-border/30 dark:hover:bg-night-border/30 transition-colors flex items-center justify-center cursor-pointer shadow-field"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-paper-border dark:border-night-border bg-paper dark:bg-night-card text-graphite dark:text-night-text hover:bg-paper-border/30 dark:hover:bg-night-border/30 transition-colors flex items-center justify-center cursor-pointer shadow-field"
           >
             {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-lime-signal" />
+              <Sun className="w-4 h-4 text-teal-signal" />
             ) : (
               <Moon className="w-4 h-4 text-forest" />
             )}
@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
           {onOpenDemoToolbar && (
             <button
               onClick={onOpenDemoToolbar}
-              className="px-2.5 py-1.5 rounded-xl border border-forest/30 dark:border-forest/50 bg-forest-subtle dark:bg-forest/20 text-forest dark:text-lime-signal hover:bg-forest/15 transition-colors text-xs font-mono font-medium flex items-center gap-1.5 cursor-pointer shadow-field"
+              className="px-2.5 py-1.5 rounded-xl border border-forest/30 dark:border-teal-500/40 bg-forest-subtle dark:bg-teal-500/10 text-forest dark:text-teal-signal hover:bg-forest/15 dark:hover:bg-teal-500/20 transition-colors text-xs font-mono font-medium flex items-center gap-1.5 cursor-pointer shadow-field"
               title="Open Cluster Simulator"
             >
               <Activity className="w-3.5 h-3.5" />

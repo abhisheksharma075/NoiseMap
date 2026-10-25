@@ -2,6 +2,8 @@
 // On-device audio sampling, Fast Fourier Transform (FFT), and decibel SPL estimation.
 // ZERO AUDIO STORAGE GUARANTEE: Raw PCM audio never leaves transient client RAM.
 
+import { AUDIO_CONFIG } from '../config/audioThresholds';
+
 export interface AudioMetrics {
   instantDb: number;
   avgDb: number;
@@ -19,7 +21,7 @@ export class AudioDspEngine {
 
   // Calibrated reference offset for typical smartphone microphone input
   // Translates normalized Web Audio float values to estimated ambient dB SPL
-  private readonly CALIBRATION_OFFSET = 98.0;
+  private readonly CALIBRATION_OFFSET = AUDIO_CONFIG.CALIBRATION_OFFSET_DEFAULT;
 
   private activeSessionToken: number = 0;
 

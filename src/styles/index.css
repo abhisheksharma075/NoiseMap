@@ -18,8 +18,8 @@ html, body {
 }
 
 .dark html, .dark body {
-  background-color: #1C231E;
-  color: #F4F1E8;
+  background-color: #0A0F1D;
+  color: #F8FAFC;
 }
 
 /* Urban Fieldwork Coordinate Grid Background */
@@ -32,10 +32,10 @@ html, body {
 }
 
 .dark .bg-field-grid {
-  background-color: #1C231E;
+  background-color: #0A0F1D;
   background-image: 
-    linear-gradient(to right, rgba(244, 241, 232, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(244, 241, 232, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -56,10 +56,10 @@ html, body {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #3C443D;
+  background: #1E293B;
 }
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #74766C;
+  background: #334155;
 }
 
 /* Touch action optimization */

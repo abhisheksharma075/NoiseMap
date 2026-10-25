@@ -47,14 +47,22 @@ export default {
           border: '#D5D3C8',
         },
 
-        // Night Field-Monitoring Theme
+        // Environmental-Tech Dark Navy Monitoring Theme
         night: {
-          bg: '#1C231E',            // Night monitoring background
-          surface: '#262E27',       // Elevated night surface
-          card: '#2A332B',          // Night card surface
-          text: '#F4F1E8',          // Primary light text
-          secondary: '#C1C3B7',     // Secondary night text
-          border: '#3C443D',        // Night borders
+          bg: '#0A0F1D',            // Deep Navy Obsidian background
+          surface: '#0F172A',       // Elevated navy surface
+          card: '#161F33',          // Polished navy card surface
+          text: '#F8FAFC',          // Crisp light text
+          secondary: '#94A3B8',     // High-legibility slate text
+          border: '#1E293B',        // Subtle high-tech slate borders
+        },
+
+        // Restrained Environmental Teal & Mint Accents
+        teal: {
+          DEFAULT: '#0D9488',
+          light: '#14B8A6',
+          signal: '#2DD4BF',
+          subtle: 'rgba(45, 212, 191, 0.12)',
         },
 
         // Retained and harmonized semantic badges
